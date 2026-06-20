@@ -1,0 +1,110 @@
+{
+  "project_name": "A Yard Apparel",
+  "domain": "Tactical E-commerce / Law Enforcement Apparel",
+  "theme": "dark",
+  "archetype": "2 (Performance Pro / Tactical & Gritty)",
+  "vibe": "Gritty, militaristic, brotherhood, law enforcement, rugged, spartan, distressed metallic.",
+  "typography": {
+    "heading_font": "Anton",
+    "body_font": "Manrope",
+    "mono_font": "IBM Plex Mono",
+    "hierarchy": {
+      "h1": "text-5xl sm:text-7xl uppercase tracking-tighter leading-none",
+      "h2": "text-3xl sm:text-5xl uppercase tracking-tight leading-tight",
+      "h3": "text-xl sm:text-2xl uppercase tracking-tight",
+      "body": "text-base tracking-wide text-[#9BA1B0]",
+      "labels": "text-xs tracking-[0.2em] uppercase font-bold text-[#8C92A0]"
+    }
+  },
+  "colors": {
+    "background_base": "#0A0C10",
+    "surface_main": "#12151C",
+    "surface_secondary": "#1A1D24",
+    "primary_accent": "#FF4500",
+    "secondary_accent": "#8B5FBF",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#9BA1B0",
+    "border_subtle": "#222631",
+    "border_focus": "#3A4150",
+    "military_olive": "#4A5240",
+    "metallic_silver": "#8C92A0"
+  },
+  "spacing_and_layout": {
+    "section_padding": "py-16 md:py-32",
+    "container": "w-full max-w-7xl mx-auto px-6 md:px-12",
+    "grid_gap": "gap-6 md:gap-8",
+    "patterns": {
+      "hero": "Min-height 80vh. Full-bleed background image with heavy black gradient overlay (bg-black/60 to bg-black/90 at bottom). Content aligned bottom-left or center.",
+      "product_grid": "Grid layout: 1 column mobile, 2 tablet, 3 or 4 desktop. Strict alignment. Products in cards with exposed borders.",
+      "bento_showcase": "Asymmetric bento grid for the two main sticker designs. Dumpster Fire spans 2 columns, Mental Health spans 1 column.",
+      "borders": "Technical look. Use 1px borders (border-[#222631]) around sections and grid items. Zero border-radius (rounded-none) for a harsh, tactical feel."
+    }
+  },
+  "surfaces_and_components": {
+    "card": "bg-[#12151C] border border-[#222631] rounded-none hover:border-[#FF4500]/50 transition-colors duration-300 relative overflow-hidden",
+    "header": "fixed top-0 w-full z-50 bg-[#0A0C10]/80 backdrop-blur-xl border-b border-[#222631]",
+    "button_primary": "bg-[#FF4500] text-white hover:bg-[#E63E00] rounded-none px-6 py-3 font-bold uppercase tracking-widest text-sm inline-flex items-center justify-center transition-all",
+    "button_secondary": "bg-transparent border border-[#8C92A0] text-white hover:border-white hover:bg-white/5 rounded-none px-6 py-3 uppercase tracking-widest text-sm transition-all",
+    "badge": "bg-[#1A1D24] border border-[#3A4150] text-[#FFFFFF] text-xs px-2 py-1 uppercase tracking-widest",
+    "forms": "Inputs should have bg-[#0A0C10], border border-[#222631], text-white, focus:border-[#FF4500] focus:ring-1 focus:ring-[#FF4500]. Sharp corners.",
+    "textures": "Apply a subtle noise/grain texture overlay (using a repeating radial gradient or SVG noise) across the app to give a gritty, distressed feel."
+  },
+  "media_assets": {
+    "hero_backgrounds": [
+      {
+        "url": "https://images.unsplash.com/photo-1766521723068-78bf96e98939?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NjZ8MHwxfHNlYXJjaHwzfHxwcmlzb24lMjB3YXRjaHRvd2VyJTIwbmlnaHR8ZW58MHx8fHwxNzgxOTgyMzkyfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Dark watchtower behind barbed wire in fog. Perfect for Hero section background.",
+        "category": "hero_bg"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1574110537361-ff1948fc4a57?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHwzfHxkYXJrJTIwbWV0YWxsaWMlMjB0ZXh0dXJlfGVufDB8fHx8MTc4MTk4MjQwMXww&ixlib=rb-4.1.0&q=85",
+        "description": "Dark metallic texture. Good for secondary section backgrounds.",
+        "category": "texture_bg"
+      }
+    ],
+    "client_stickers": [
+      {
+        "url": "https://customer-assets.emergentagent.com/job_113b9dce-9608-47f8-9ff5-c90f0d3a5617/artifacts/8yiw1diy_IMG_3335.HEIC",
+        "description": "Dumpster Fire Response Team sticker (A Yard custody). Orange/Fire accents.",
+        "category": "featured_design_1"
+      },
+      {
+        "url": "https://customer-assets.emergentagent.com/job_113b9dce-9608-47f8-9ff5-c90f0d3a5617/artifacts/u1dqeq4z_IMG_3336.HEIC",
+        "description": "Mule Creek Mental Health Team sticker. Purple accents.",
+        "category": "featured_design_2"
+      }
+    ],
+    "placeholders": [
+      {
+        "url": "https://images.unsplash.com/photo-1636718623297-6c18fd8d5cc0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHw0fHx0YWN0aWNhbCUyMGFwcGFyZWwlMjBkYXJrfGVufDB8fHx8MTc4MTk4MjM5Mnww&ixlib=rb-4.1.0&q=85",
+        "description": "Tactical apparel model. Use as placeholder for T-shirts/Hoodies.",
+        "category": "product_placeholder"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1768106047915-d5065b18352d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDR8MHwxfHNlYXJjaHwyfHxncml0dHklMjBzcGFydGFuJTIwaGVsbWV0fGVufDB8fHx8MTc4MTk4MjM5Mnww&ixlib=rb-4.1.0&q=85",
+        "description": "Dark spartan helmet on reflective surface. Use for About page or category headers.",
+        "category": "aesthetic_visual"
+      }
+    ]
+  },
+  "motion_and_interactions": {
+    "hover_states": "Interactive elements should not have soft shadows. Use sharp 1px borders that light up on hover. Images in cards scale slightly (scale-105) on hover.",
+    "focus_states": "High contrast ring focus: ring-2 ring-[#FF4500] ring-offset-2 ring-offset-[#0A0C10].",
+    "page_transitions": "Minimalist fade. No bouncy animations. The vibe is serious and structured."
+  },
+  "accessibility_and_testing": {
+    "contrast": "Ensure all text meets 4.5:1 ratio. Dark grey text (#9BA1B0) on #0A0C10 passes, but use #FFFFFF for primary info.",
+    "testing": "All interactive elements (buttons, links, form inputs, cart toggles) MUST include a 'data-testid' attribute (e.g., data-testid='add-to-cart-btn', data-testid='checkout-submit')."
+  },
+  "instructions_to_main_agent": [
+    "Build the application using React (.js files) and Tailwind CSS.",
+    "Incorporate Shadcn UI for complex interactive components (Select, Drawer/Sheet for cart, Forms), but customize them to remove rounded corners (use rounded-none) and apply the dark tactical palette.",
+    "Use standard HTML/Tailwind for the Hero and Bento grids to allow creative asymmetry. Do not force them into generic cards.",
+    "The client's sticker URLs are in .HEIC format. Render them using standard <img> tags. If browsers fail to load them, provide a fallback or use CSS background patterns with the tactical placeholder images, but attempt to display the stickers first.",
+    "Implement a robust 'Cart Drawer' (Shadcn Sheet) that allows users to view selected apparel/items before navigating to Stripe checkout.",
+    "Product catalog needs filtering by 'Category' (T-shirts, Hoodies, etc.) and 'Yard' (A-E Yard, ISU, etc.).",
+    "Integrate Lucide React icons for UI elements (ShoppingCart, Menu, X, Shield, Crosshair).",
+    "Add the tag 'Five Buildings • One Mission' prominently in the footer or About section.",
+    "Ensure the design does not look like a generic SaaS template. It must feel like a premium military/law enforcement gear site."
+  ]
+}
