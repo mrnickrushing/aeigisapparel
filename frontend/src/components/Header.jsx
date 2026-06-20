@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { ShoppingCart, Menu, X, Shield } from "lucide-react";
+import { ShoppingCart, Menu, X, User } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import Logo from "./Logo";
 
 const navLinks = [
-  { to: "/shop", label: "Shop" },
-  { to: "/shop?design=dumpster_fire", label: "A Yard" },
-  { to: "/shop?unit=Medical", label: "Medical" },
-  { to: "/shop?unit=ISU", label: "ISU" },
-  { to: "/about", label: "Story" },
+  { to: "/home", label: "Home" },
+  { to: "/core", label: "Core" },
+  { to: "/legacy", label: "Legacy" },
+  { to: "/campaigns", label: "Campaign" },
+  { to: "/logbook", label: "Logbook" },
+  { to: "/contact", label: "Contact" },
 ];
 
 export default function Header() {
@@ -21,36 +23,42 @@ export default function Header() {
       {/* Tactical top bar */}
       <div
         data-testid="top-banner"
-        className="w-full bg-[#FF4500] text-black text-[11px] font-mono uppercase tracking-[0.25em] py-1.5 text-center"
+        className="w-full bg-[#11141C] border-b border-[#2A3040] text-[10px] font-mono uppercase tracking-[0.3em] py-1.5 text-center text-[#A0A6B5]"
       >
-        Free shipping on orders over $75 · Five Buildings · One Mission
+        <span className="hud-dot inline-block w-1.5 h-1.5 bg-[#D4AF37] mr-2 align-middle" />
+        Built through adversity · Forged through leadership · Strength in Order
       </div>
 
       <header
         data-testid="site-header"
-        className="sticky top-0 z-40 w-full bg-[#0A0C10]/85 backdrop-blur-xl border-b border-[#222631]"
+        className="sticky top-0 z-40 w-full bg-[#06080C]/90 backdrop-blur-xl border-b border-[#1F2330]"
       >
-        <div className="max-w-7xl mx-auto px-5 md:px-10 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-5 md:px-10 h-[68px] flex items-center justify-between">
           <Link
             data-testid="logo-home-link"
-            to="/"
-            className="flex items-center gap-2 group"
+            to="/home"
+            className="flex items-center gap-3 group"
           >
-            <Shield className="w-6 h-6 text-[#FF4500] group-hover:rotate-[8deg] transition-transform" />
-            <span className="font-display text-2xl uppercase tracking-tight">
-              A Yard <span className="text-[#FF4500]">Apparel</span>
-            </span>
+            <Logo className="w-8 h-8" />
+            <div className="leading-none">
+              <div className="font-display text-xl tracking-[0.15em] etched-steel">
+                AEGIS
+              </div>
+              <div className="text-[9px] font-mono uppercase tracking-[0.3em] text-[#6E7585] mt-0.5">
+                Strength in Order
+              </div>
+            </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((l) => (
               <NavLink
                 key={l.label}
-                data-testid={`nav-link-${l.label.toLowerCase().replace(/\s/g, "-")}`}
+                data-testid={`nav-link-${l.label.toLowerCase()}`}
                 to={l.to}
                 className={({ isActive }) =>
-                  `text-xs font-mono uppercase tracking-[0.2em] transition-colors ${
-                    isActive ? "text-white" : "text-[#9BA1B0] hover:text-white"
+                  `text-[11px] font-mono uppercase tracking-[0.3em] transition-colors ${
+                    isActive ? "text-[#D4AF37]" : "text-[#A0A6B5] hover:text-white"
                   }`
                 }
               >
@@ -61,19 +69,27 @@ export default function Header() {
 
           <div className="flex items-center gap-3">
             <button
+              data-testid="profile-btn"
+              className="hidden md:flex w-10 h-10 border border-[#1F2330] hover:border-[#D4AF37] items-center justify-center transition-colors"
+              aria-label="Profile"
+              onClick={() => navigate("/legacy")}
+            >
+              <User className="w-4 h-4 text-[#A0A6B5]" />
+            </button>
+            <button
               data-testid="open-cart-btn"
               onClick={() => setDrawerOpen(true)}
-              className="relative flex items-center gap-2 px-3 py-2 border border-[#222631] hover:border-[#FF4500] transition-colors"
+              className="relative flex items-center gap-2 px-3 py-2 border border-[#1F2330] hover:border-[#D4AF37] transition-colors"
               aria-label="Open cart"
             >
-              <ShoppingCart className="w-4 h-4" />
-              <span className="font-mono text-xs tracking-wider">
-                CART
+              <ShoppingCart className="w-4 h-4 text-[#A0A6B5]" />
+              <span className="font-mono text-[10px] tracking-[0.25em] text-[#A0A6B5] uppercase">
+                Cart
               </span>
               {count > 0 && (
                 <span
                   data-testid="cart-count-badge"
-                  className="absolute -top-2 -right-2 bg-[#FF4500] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center"
+                  className="absolute -top-2 -right-2 bg-[#D4AF37] text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center"
                 >
                   {count}
                 </span>
@@ -81,7 +97,7 @@ export default function Header() {
             </button>
             <button
               data-testid="mobile-menu-toggle"
-              className="md:hidden p-2 border border-[#222631]"
+              className="lg:hidden p-2 border border-[#1F2330]"
               onClick={() => setMobileOpen((v) => !v)}
               aria-label="Toggle menu"
             >
@@ -90,11 +106,10 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileOpen && (
           <div
             data-testid="mobile-menu"
-            className="md:hidden border-t border-[#222631] bg-[#0A0C10]"
+            className="lg:hidden border-t border-[#1F2330] bg-[#06080C]"
           >
             <div className="px-5 py-4 flex flex-col gap-3">
               {navLinks.map((l) => (
@@ -105,7 +120,7 @@ export default function Header() {
                     setMobileOpen(false);
                     navigate(l.to);
                   }}
-                  className="text-left text-sm font-mono uppercase tracking-[0.2em] text-[#9BA1B0] hover:text-white py-2 border-b border-[#222631]/50"
+                  className="text-left text-sm font-mono uppercase tracking-[0.25em] text-[#A0A6B5] hover:text-white py-2 border-b border-[#1F2330]/60"
                 >
                   {l.label}
                 </button>

@@ -29,11 +29,11 @@ export default function CartDrawer() {
     <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
       <SheetContent
         data-testid="cart-drawer"
-        className="bg-[#0A0C10] border-l border-[#222631] text-white w-full sm:max-w-md p-0 flex flex-col"
+        className="bg-[#06080C] border-l border-[#1F2330] text-white w-full sm:max-w-md p-0 flex flex-col"
       >
-        <SheetHeader className="px-6 py-5 border-b border-[#222631] flex flex-row items-center justify-between">
-          <SheetTitle className="font-display text-2xl uppercase tracking-tight text-white">
-            Loadout <span className="text-[#FF4500]">/ {count}</span>
+        <SheetHeader className="px-6 py-5 border-b border-[#1F2330] flex flex-row items-center justify-between">
+          <SheetTitle className="font-display text-2xl uppercase tracking-[0.1em] text-white">
+            Loadout <span className="text-[#D4AF37]">/ {count}</span>
           </SheetTitle>
           <SheetDescription className="sr-only">
             Your cart with selected gear ready for checkout
@@ -41,7 +41,7 @@ export default function CartDrawer() {
           <button
             data-testid="cart-drawer-close"
             onClick={() => setDrawerOpen(false)}
-            className="border border-[#222631] hover:border-[#FF4500] p-2"
+            className="border border-[#1F2330] hover:border-[#D4AF37] p-2"
             aria-label="Close cart"
           >
             <X className="w-4 h-4" />
@@ -54,24 +54,24 @@ export default function CartDrawer() {
               data-testid="cart-empty-state"
               className="flex flex-col items-center justify-center h-full text-center py-16"
             >
-              <ShoppingBag className="w-12 h-12 text-[#3A4150] mb-4" />
-              <div className="font-display text-2xl uppercase">Empty rack</div>
-              <p className="text-[#9BA1B0] text-sm mt-2 max-w-xs">
-                No gear staged yet. Build out your loadout from the shop.
+              <ShoppingBag className="w-12 h-12 text-[#2A3040] mb-4" />
+              <div className="font-display text-2xl uppercase tracking-[0.1em]">Empty rack</div>
+              <p className="text-[#A0A6B5] text-sm mt-2 max-w-xs">
+                No gear staged. Build your loadout in the Core Division.
               </p>
               <button
                 data-testid="cart-empty-shop-btn"
                 onClick={() => {
                   setDrawerOpen(false);
-                  navigate("/shop");
+                  navigate("/core");
                 }}
-                className="mt-6 bg-[#FF4500] hover:bg-[#E63E00] px-6 py-3 font-mono uppercase text-xs tracking-widest"
+                className="mt-6 bg-[#D4AF37] hover:bg-[#E6C454] text-black px-6 py-3 font-mono uppercase text-xs tracking-[0.3em] font-bold"
               >
-                Shop the line
+                Enter Core
               </button>
             </div>
           ) : (
-            <ul className="divide-y divide-[#222631]">
+            <ul className="divide-y divide-[#1F2330]">
               {items.map((it) => (
                 <li
                   data-testid={`cart-item-${it._key}`}
@@ -79,33 +79,31 @@ export default function CartDrawer() {
                   className="py-4 flex gap-3"
                 >
                   <div
-                    className="w-20 h-20 shrink-0 border border-[#222631] bg-[#12151C] relative"
+                    className="w-20 h-20 shrink-0 border border-[#1F2330] bg-[#11141C] relative"
                     style={{
-                      background: `radial-gradient(circle, ${it.accent}33 0%, #0A0C10 70%)`,
+                      background: `radial-gradient(circle, ${it.accent || "#D4AF37"}33 0%, #06080C 70%)`,
                     }}
                   >
                     <img
                       src={it.image}
                       alt={it.name}
-                      className="absolute inset-0 w-full h-full object-contain p-2"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-display text-sm uppercase truncate">
+                    <div className="font-display text-sm uppercase tracking-[0.05em] truncate">
                       {it.name}
                     </div>
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-[#9BA1B0] mt-1">
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-[#A0A6B5] mt-1">
                       {it.size && <span>{it.size}</span>}
-                      {it.color && (
-                        <span> · {it.color}</span>
-                      )}
+                      {it.color && <span> · {it.color}</span>}
                     </div>
                     <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center border border-[#222631]">
+                      <div className="flex items-center border border-[#1F2330]">
                         <button
                           data-testid={`cart-qty-minus-${it._key}`}
                           onClick={() => updateQty(it._key, it.quantity - 1)}
-                          className="p-1.5 hover:bg-[#12151C]"
+                          className="p-1.5 hover:bg-[#11141C]"
                           aria-label="Decrease"
                         >
                           <Minus className="w-3 h-3" />
@@ -114,7 +112,7 @@ export default function CartDrawer() {
                         <button
                           data-testid={`cart-qty-plus-${it._key}`}
                           onClick={() => updateQty(it._key, it.quantity + 1)}
-                          className="p-1.5 hover:bg-[#12151C]"
+                          className="p-1.5 hover:bg-[#11141C]"
                           aria-label="Increase"
                         >
                           <Plus className="w-3 h-3" />
@@ -128,7 +126,7 @@ export default function CartDrawer() {
                   <button
                     data-testid={`cart-remove-${it._key}`}
                     onClick={() => removeItem(it._key)}
-                    className="self-start text-[#9BA1B0] hover:text-[#FF4500]"
+                    className="self-start text-[#A0A6B5] hover:text-[#D4AF37]"
                     aria-label="Remove"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -140,21 +138,21 @@ export default function CartDrawer() {
         </div>
 
         {items.length > 0 && (
-          <div className="border-t border-[#222631] p-6 space-y-3 bg-[#0A0C10]">
-            <div className="flex justify-between text-sm text-[#9BA1B0]">
+          <div className="border-t border-[#1F2330] p-6 space-y-3 bg-[#06080C]">
+            <div className="flex justify-between text-sm text-[#A0A6B5]">
               <span>Subtotal</span>
               <span data-testid="cart-subtotal" className="font-mono text-white">
                 ${subtotal.toFixed(2)}
               </span>
             </div>
-            <div className="flex justify-between text-sm text-[#9BA1B0]">
+            <div className="flex justify-between text-sm text-[#A0A6B5]">
               <span>Shipping</span>
               <span className="font-mono text-white">
                 {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
               </span>
             </div>
-            <div className="flex justify-between border-t border-[#222631] pt-3">
-              <span className="font-display uppercase text-lg">Total</span>
+            <div className="flex justify-between border-t border-[#1F2330] pt-3">
+              <span className="font-display uppercase text-lg tracking-[0.1em]">Total</span>
               <span
                 data-testid="cart-total"
                 className="font-mono text-lg font-bold"
@@ -168,7 +166,7 @@ export default function CartDrawer() {
                 setDrawerOpen(false);
                 navigate("/checkout");
               }}
-              className="w-full bg-[#FF4500] hover:bg-[#E63E00] text-white py-4 font-mono uppercase tracking-widest text-sm font-bold"
+              className="w-full bg-[#D4AF37] hover:bg-[#E6C454] text-black py-4 font-mono uppercase tracking-[0.3em] text-sm font-bold"
             >
               Checkout →
             </button>

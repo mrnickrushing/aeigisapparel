@@ -25,7 +25,10 @@ db = client[os.environ["DB_NAME"]]
 
 STRIPE_API_KEY = os.environ.get("STRIPE_API_KEY", "")
 
-app = FastAPI(title="A Yard Apparel API")
+# Bump this to wipe + reseed products & campaigns on next startup
+SEED_VERSION = "aegis-v1"
+
+app = FastAPI(title="AEGIS API — Strength in Order")
 api_router = APIRouter(prefix="/api")
 
 
@@ -34,17 +37,32 @@ class Product(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     slug: str
     name: str
-    category: str  # tshirt, hoodie, hat, sticker, patch, coin, tumbler
-    unit: str  # A Yard, B Yard, ... ISU, Medical, Control Booths
-    design: str  # design line key (dumpster_fire, mental_health, b_yard, ...)
+    short: str                   # short tagline / subtitle
+    category: str                # tshirt, hoodie, hat, sticker, patch, coin, tumbler
+    division: str                # core | legacy
+    is_award_only: bool = False  # legacy items require unlock code
     price: float
     description: str
-    image: str
-    accent: str  # color hex
+    images: List[str] = []
+    accent: str = "#D4AF37"
     sizes: List[str] = []
     colors: List[str] = []
-    badge: Optional[str] = None  # e.g. "BESTSELLER", "NEW"
+    badge: Optional[str] = None
     featured: bool = False
+
+
+class Campaign(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    code: str
+    slug: str
+    name: str
+    status: str                  # active | coming_soon | classified
+    tagline: str
+    description: str
+    accent: str
+    image: str
+    bullets: List[str] = []
+    is_unlocked: bool = True
 
 
 class CartItemIn(BaseModel):
@@ -83,173 +101,305 @@ class OrderRecord(BaseModel):
     )
 
 
-# ---------- PRODUCT SEED ----------
-SIZES = ["S", "M", "L", "XL", "2XL", "3XL"]
-COLORS = ["Black", "Charcoal", "OD Green"]
+class RedeemIn(BaseModel):
+    code: str
 
-DESIGNS = [
+
+class LegacyRequestIn(BaseModel):
+    full_name: str
+    email: str
+    unit: Optional[str] = ""
+    story: str
+
+
+class ContactIn(BaseModel):
+    full_name: str
+    email: str
+    subject: Optional[str] = ""
+    message: str
+
+
+# ---------- SEED DATA ----------
+SIZES = ["S", "M", "L", "XL", "2XL", "3XL"]
+
+CORE_PRODUCTS_RAW = [
     {
-        "design": "dumpster_fire",
-        "design_name": "Dumpster Fire Response Team",
-        "unit": "A Yard Custody",
+        "slug": "tactical-white-tee",
+        "name": "AEGIS Tactical White Tee",
+        "short": "The Foundation. Bone white. Heavyweight.",
+        "category": "tshirt",
+        "price": 34.0,
+        "images": ["/aegis/tactical-white-tee.jpg"],
+        "accent": "#C7CCD4",
+        "sizes": SIZES,
+        "colors": ["Bone White"],
+        "badge": "BESTSELLER",
+        "featured": True,
+        "description": "AEGIS CORE — Tactical White. Bone-white heavyweight cotton with the AEGIS chestplate on the front and the full CORE shield on the back. Stitched flag on the sleeve. Built for the line, made to last beyond it.",
+    },
+    {
+        "slug": "tactical-black-tee",
+        "name": "AEGIS Tactical Black Tee",
+        "short": "Bronze on black. Discipline you can wear.",
+        "category": "tshirt",
+        "price": 34.0,
+        "images": ["/aegis/core-black-tee.jpg"],
+        "accent": "#B08B4F",
+        "sizes": SIZES,
+        "colors": ["Black"],
+        "badge": "NEW",
+        "featured": True,
+        "description": "AEGIS CORE — Tactical Black. Antique bronze CORE crest on midnight black, USA flag on sleeve. The everyday uniform of the Order. Heavyweight, pre-shrunk, riot-rated.",
+    },
+    {
+        "slug": "core-hoodie-black",
+        "name": "AEGIS CORE Hoodie — Midnight",
+        "short": "Tactical winter loadout.",
+        "category": "hoodie",
+        "price": 64.0,
+        "images": ["/aegis/core-badge.jpg"],
+        "accent": "#4A7FC1",
+        "sizes": SIZES,
+        "colors": ["Midnight Black"],
+        "featured": True,
+        "description": "Heavyweight midnight black pullover with the CORE shield emblazoned across the back. 12oz fleece, kangaroo pouch, ribbed cuffs. Designed for cold yard mornings and post-shift cooldown.",
+    },
+    {
+        "slug": "core-hat-flexfit",
+        "name": "AEGIS CORE Flexfit Cap",
+        "short": "Low profile. High discipline.",
+        "category": "hat",
+        "price": 28.0,
+        "images": ["/aegis/core-badge.jpg"],
+        "accent": "#4A7FC1",
+        "sizes": ["S/M", "L/XL"],
+        "colors": ["Black"],
+        "description": "Structured low-profile flexfit cap. Embroidered AEGIS shield on the crown. Standard issue daily wear.",
+    },
+]
+
+# Legacy items — awarded, not sold. Visible but require redeem code.
+LEGACY_PRODUCTS_RAW = [
+    {
+        "slug": "foundation-piece",
+        "name": "Foundation Piece — Numbered",
+        "short": "001/100. Awarded to founders only.",
+        "category": "coin",
+        "price": 0.0,
+        "is_award_only": True,
+        "images": ["/aegis/legacy-badge.jpg"],
+        "accent": "#D4AF37",
+        "sizes": ["1.75in"],
+        "colors": [],
+        "badge": "EARNED",
+        "description": "The Foundation Piece. Numbered 1–100. Awarded only to the people who built the Order from the ground up. Antique gold finish, AEGIS LEGACY crest, individually serialized on the rim.",
+    },
+    {
+        "slug": "morale-patch-dumpster-fire",
+        "name": "Dumpster Fire Response Team Patch",
+        "short": "A Yard Custody · Mule Creek.",
+        "category": "patch",
+        "price": 0.0,
+        "is_award_only": True,
+        "images": ["/stickers/sticker1.png"],
         "accent": "#FF4500",
-        "image": "/stickers/sticker1.png",
-        "tagline": "Built on discipline. United as one.",
+        "sizes": ["3in"],
+        "colors": [],
+        "badge": "EARNED",
+        "description": "The original. Hand-distributed to A Yard officers at Mule Creek who held the line through the worst of it. Velcro back, full-bleed embroidery. Not for sale. Earned.",
     },
     {
-        "design": "mental_health",
-        "design_name": "Mental Health Team",
-        "unit": "MCSP Mental Health",
+        "slug": "morale-patch-mental-health",
+        "name": "Mental Health Team Patch",
+        "short": "Strength in mind. Support in action.",
+        "category": "patch",
+        "price": 0.0,
+        "is_award_only": True,
+        "images": ["/stickers/sticker2.png"],
         "accent": "#8B5FBF",
-        "image": "/stickers/sticker2.png",
-        "tagline": "Strength in Mind. Support in Action.",
+        "sizes": ["3in"],
+        "colors": [],
+        "badge": "EARNED",
+        "description": "Awarded to the clinicians and Mental Health Team who walk the floors no one else will. Purple-accented, embroidered velcro patch. Issued in person.",
     },
     {
-        "design": "b_yard",
-        "design_name": "B Yard Brotherhood",
-        "unit": "B Yard",
+        "slug": "legacy-sticker-a-yard",
+        "name": "A-Yard Legacy Sticker",
+        "short": "The original sticker that started it all.",
+        "category": "sticker",
+        "price": 0.0,
+        "is_award_only": True,
+        "images": ["/stickers/sticker1.png"],
+        "accent": "#FF4500",
+        "sizes": ["3in"],
+        "colors": [],
+        "badge": "EARNED",
+        "description": "The first sticker. Hand-numbered run from the original A-Yard batch. If you got one, you know.",
+    },
+    {
+        "slug": "legacy-sticker-mental-health",
+        "name": "Mental Health Legacy Sticker",
+        "short": "From the clinicians of the watch.",
+        "category": "sticker",
+        "price": 0.0,
+        "is_award_only": True,
+        "images": ["/stickers/sticker2.png"],
+        "accent": "#8B5FBF",
+        "sizes": ["3in"],
+        "colors": [],
+        "badge": "EARNED",
+        "description": "Numbered from the original Mental Health Team run. Awarded only to clinicians and MHC staff who served the yard.",
+    },
+]
+
+CAMPAIGNS_RAW = [
+    {
+        "code": "001",
+        "slug": "a-yard",
+        "name": "A-YARD",
+        "status": "active",
+        "tagline": "Mule Creek State Prison. Five Buildings. One Mission.",
         "accent": "#D4AF37",
         "image": "/stickers/sticker1.png",
-        "tagline": "Hold the line.",
+        "bullets": [
+            "Level IV high-security yard",
+            "Code 2 / Code 3 operational tempo",
+            "Built on discipline. United as one.",
+        ],
+        "description": "Where it started. A Yard at Mule Creek State Prison — California Level IV. The campaign that birthed the Order. The Dumpster Fire Response Team patch, the original A-Yard sticker, the AEGIS Foundation Piece — all trace their lineage here. Five buildings. One mission.",
     },
     {
-        "design": "c_yard",
-        "design_name": "C Yard Crew",
-        "unit": "C Yard",
-        "accent": "#3DA9FC",
-        "image": "/stickers/sticker1.png",
-        "tagline": "Watchful. Ready.",
-    },
-    {
-        "design": "d_yard",
-        "design_name": "D Yard Detail",
-        "unit": "D Yard",
-        "accent": "#2EC4B6",
-        "image": "/stickers/sticker1.png",
-        "tagline": "Vigilance never sleeps.",
-    },
-    {
-        "design": "e_yard",
-        "design_name": "E Yard Echo",
-        "unit": "E Yard",
-        "accent": "#E63946",
-        "image": "/stickers/sticker1.png",
-        "tagline": "Five buildings. One mission.",
-    },
-    {
-        "design": "isu",
-        "design_name": "ISU - Investigative Services",
-        "unit": "ISU",
-        "accent": "#C9CDD4",
-        "image": "/stickers/sticker1.png",
-        "tagline": "Quiet professionals.",
-    },
-    {
-        "design": "control_booths",
-        "design_name": "Control Booth Operators",
-        "unit": "Control Booths",
-        "accent": "#F4A261",
-        "image": "/stickers/sticker1.png",
-        "tagline": "Eyes on the yard.",
-    },
-    {
-        "design": "a_yard_medical",
-        "design_name": "A Yard Medical",
-        "unit": "Medical",
-        "accent": "#06D6A0",
+        "code": "002",
+        "slug": "eop",
+        "name": "EOP",
+        "status": "active",
+        "tagline": "Mental Tough. Physical Tough. Mission Ready.",
+        "accent": "#A23E48",
         "image": "/stickers/sticker2.png",
-        "tagline": "First in. Last out.",
+        "bullets": [
+            "Enhanced Outpatient Program operations",
+            "Mental Health Team integration",
+            "Clinicians + Custody as one unit",
+        ],
+        "description": "The Enhanced Outpatient Program campaign. Where Mental Health clinicians and Custody work together as one fighting unit. Strength in mind. Support in action. Awarded gear acknowledges the people who walked these floors on the toughest days.",
     },
     {
-        "design": "tta",
-        "design_name": "TTA - Triage & Treatment",
-        "unit": "Medical",
-        "accent": "#EF476F",
-        "image": "/stickers/sticker2.png",
-        "tagline": "Code 3 ready.",
+        "code": "003",
+        "slug": "building-5",
+        "name": "BUILDING 5",
+        "status": "active",
+        "tagline": "The Standard. Lives Here.",
+        "accent": "#2F855A",
+        "image": "/aegis/core-badge.jpg",
+        "bullets": [
+            "Highest standard on the yard",
+            "Tier I custody operations",
+            "The bar everyone else is measured against",
+        ],
+        "description": "Building 5. The standard. The bar. Where discipline, presence, and control are not slogans — they are baseline. The Building 5 campaign honors the watch that sets the tone for everything else on the yard.",
     },
     {
-        "design": "yard_clinics",
-        "design_name": "Yard Clinics",
-        "unit": "Medical",
-        "accent": "#118AB2",
-        "image": "/stickers/sticker2.png",
-        "tagline": "Care behind the wall.",
+        "code": "004",
+        "slug": "locked",
+        "name": "LOCKED",
+        "status": "coming_soon",
+        "tagline": "Earn it. Unlock it. Live it.",
+        "accent": "#8C92A0",
+        "image": "/aegis/legacy-badge.jpg",
+        "bullets": [],
+        "description": "Campaign locked. Eligibility criteria forthcoming. This dossier becomes available when the conditions are met.",
+    },
+    {
+        "code": "005",
+        "slug": "classified",
+        "name": "CLASSIFIED",
+        "status": "classified",
+        "tagline": "The next chapter awaits.",
+        "accent": "#8C92A0",
+        "image": "/aegis/core-badge.jpg",
+        "bullets": [],
+        "description": "Classified. Information regarding this campaign has been redacted at this time.",
     },
 ]
 
-# Item variants per design with category, price, sizes
-ITEM_TEMPLATES = [
-    {"category": "tshirt", "label": "Tee", "price": 34.0, "sizes": SIZES, "colors": COLORS},
-    {"category": "hoodie", "label": "Hoodie", "price": 64.0, "sizes": SIZES, "colors": COLORS},
-    {"category": "hat", "label": "Flexfit Hat", "price": 28.0, "sizes": ["S/M", "L/XL"], "colors": ["Black", "Charcoal"]},
-    {"category": "beanie", "label": "Beanie", "price": 22.0, "sizes": ["One Size"], "colors": ["Black", "Charcoal"]},
-    {"category": "sticker", "label": "Sticker", "price": 6.0, "sizes": ["3in"], "colors": []},
-    {"category": "patch", "label": "Velcro Patch", "price": 12.0, "sizes": ["3in"], "colors": []},
-    {"category": "coin", "label": "Challenge Coin", "price": 25.0, "sizes": ["1.75in"], "colors": []},
-    {"category": "tumbler", "label": "20oz Tumbler", "price": 32.0, "sizes": ["20oz"], "colors": ["Black", "Stainless"]},
-]
+# Demo redeem codes (user can edit/replace via DB later)
+LEGACY_REDEEM_CODES = {
+    "AYARD-MCSP-2024": {
+        "label": "A-Yard MCSP Founders Cohort",
+        "unlocks": [
+            "morale-patch-dumpster-fire",
+            "legacy-sticker-a-yard",
+        ],
+    },
+    "MHT-CLINICIAN-2024": {
+        "label": "Mental Health Team — Issued",
+        "unlocks": [
+            "morale-patch-mental-health",
+            "legacy-sticker-mental-health",
+        ],
+    },
+    "FOUNDATION-001": {
+        "label": "Foundation Piece Holder",
+        "unlocks": ["foundation-piece"],
+    },
+    "BUILT-ON-DISCIPLINE": {
+        "label": "Order Admin Override",
+        "unlocks": [
+            "foundation-piece",
+            "morale-patch-dumpster-fire",
+            "morale-patch-mental-health",
+            "legacy-sticker-a-yard",
+            "legacy-sticker-mental-health",
+        ],
+    },
+}
 
 
 def build_seed_products() -> List[Product]:
-    products: List[Product] = []
-    for d in DESIGNS:
-        is_featured_design = d["design"] in ("dumpster_fire", "mental_health")
-        for tpl in ITEM_TEMPLATES:
-            slug = f"{d['design']}-{tpl['category']}"
-            badge = None
-            if d["design"] == "dumpster_fire" and tpl["category"] == "tshirt":
-                badge = "BESTSELLER"
-            elif d["design"] == "mental_health" and tpl["category"] == "hoodie":
-                badge = "NEW"
-            p = Product(
-                slug=slug,
-                name=f"{d['design_name']} {tpl['label']}",
-                category=tpl["category"],
-                unit=d["unit"],
-                design=d["design"],
-                price=tpl["price"],
-                description=f"{d['tagline']} Premium {tpl['label'].lower()} repping the {d['design_name']} crest. Heavyweight, built for shift work, designed by the line — for the line.",
-                image=d["image"],
-                accent=d["accent"],
-                sizes=tpl["sizes"],
-                colors=tpl["colors"],
-                badge=badge,
-                featured=is_featured_design and tpl["category"] in ("tshirt", "hoodie"),
-            )
-            products.append(p)
-    return products
+    out: List[Product] = []
+    for raw in CORE_PRODUCTS_RAW:
+        out.append(Product(division="core", **raw))
+    for raw in LEGACY_PRODUCTS_RAW:
+        out.append(Product(division="legacy", **raw))
+    return out
 
 
 @app.on_event("startup")
 async def seed_data():
-    count = await db.products.count_documents({})
-    if count == 0:
+    meta = await db.meta.find_one({"key": "seed_version"})
+    current = meta.get("value") if meta else None
+    if current != SEED_VERSION:
+        await db.products.delete_many({})
+        await db.campaigns.delete_many({})
         prods = [p.model_dump() for p in build_seed_products()]
         await db.products.insert_many(prods)
-        logging.info(f"Seeded {len(prods)} products")
+        campaigns = [Campaign(**c).model_dump() for c in CAMPAIGNS_RAW]
+        await db.campaigns.insert_many(campaigns)
+        await db.meta.update_one(
+            {"key": "seed_version"},
+            {"$set": {"value": SEED_VERSION, "updated_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True,
+        )
+        logging.info(f"Re-seeded AEGIS data ({len(prods)} products, {len(campaigns)} campaigns)")
 
 
-# ---------- PRODUCT ROUTES ----------
+# ---------- ROUTES ----------
 @api_router.get("/")
 async def root():
-    return {"message": "A Yard Apparel API", "status": "operational"}
+    return {"message": "AEGIS — Strength in Order", "status": "operational"}
 
 
 @api_router.get("/products", response_model=List[Product])
 async def list_products(
     category: Optional[str] = None,
-    unit: Optional[str] = None,
-    design: Optional[str] = None,
+    division: Optional[str] = None,
     featured: Optional[bool] = None,
 ):
     q: Dict = {}
     if category:
         q["category"] = category
-    if unit:
-        q["unit"] = unit
-    if design:
-        q["design"] = design
+    if division:
+        q["division"] = division
     if featured is not None:
         q["featured"] = featured
     docs = await db.products.find(q, {"_id": 0}).to_list(500)
@@ -259,9 +409,8 @@ async def list_products(
 @api_router.get("/products/filters")
 async def product_filters():
     cats = await db.products.distinct("category")
-    units = await db.products.distinct("unit")
-    designs = await db.products.distinct("design")
-    return {"categories": cats, "units": units, "designs": designs}
+    divisions = await db.products.distinct("division")
+    return {"categories": cats, "divisions": divisions}
 
 
 @api_router.get("/products/{slug}", response_model=Product)
@@ -270,6 +419,53 @@ async def get_product(slug: str):
     if not doc:
         raise HTTPException(404, "Product not found")
     return doc
+
+
+@api_router.get("/campaigns", response_model=List[Campaign])
+async def list_campaigns():
+    docs = await db.campaigns.find({}, {"_id": 0}).sort("code", 1).to_list(50)
+    return docs
+
+
+@api_router.get("/campaigns/{slug}", response_model=Campaign)
+async def get_campaign(slug: str):
+    doc = await db.campaigns.find_one({"slug": slug}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Campaign not found")
+    return doc
+
+
+# ---------- LEGACY REDEEM / REQUEST ----------
+@api_router.post("/legacy/redeem")
+async def redeem_legacy(payload: RedeemIn):
+    code = payload.code.strip().upper()
+    entry = LEGACY_REDEEM_CODES.get(code)
+    if not entry:
+        raise HTTPException(400, "Invalid code. Codes are case-insensitive but must match exactly.")
+    # Find product ids by slug
+    slugs = entry["unlocks"]
+    docs = await db.products.find({"slug": {"$in": slugs}}, {"_id": 0, "id": 1, "slug": 1, "name": 1}).to_list(50)
+    return {
+        "label": entry["label"],
+        "unlocked_product_ids": [d["id"] for d in docs],
+        "unlocked_slugs": [d["slug"] for d in docs],
+        "unlocked_names": [d["name"] for d in docs],
+    }
+
+
+@api_router.post("/legacy/request")
+async def legacy_request(payload: LegacyRequestIn):
+    rec = {
+        "id": str(uuid.uuid4()),
+        "full_name": payload.full_name,
+        "email": payload.email,
+        "unit": payload.unit,
+        "story": payload.story,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.legacy_requests.insert_one(rec)
+    return {"ok": True, "id": rec["id"]}
 
 
 # ---------- CHECKOUT ----------
@@ -283,6 +479,8 @@ async def _calc_totals(items: List[CartItemIn]):
         prod = await db.products.find_one({"id": it.product_id}, {"_id": 0})
         if not prod:
             raise HTTPException(400, f"Invalid product {it.product_id}")
+        if prod.get("is_award_only"):
+            raise HTTPException(400, f"{prod['name']} is award-only and cannot be purchased.")
         qty = max(1, int(it.quantity))
         line_total = round(float(prod["price"]) * qty, 2)
         subtotal += line_total
@@ -295,7 +493,7 @@ async def _calc_totals(items: List[CartItemIn]):
             "size": it.size,
             "color": it.color,
             "line_total": line_total,
-            "image": prod["image"],
+            "image": (prod.get("images") or [""])[0],
         })
     subtotal = round(subtotal, 2)
     shipping = SHIPPING_FLAT if subtotal > 0 else 0.0
@@ -331,7 +529,7 @@ async def create_checkout_session(payload: CheckoutRequest, request: Request):
     metadata = {
         "order_id": order_id,
         "customer_email": payload.customer_email,
-        "source": "a_yard_apparel",
+        "source": "aegis",
     }
 
     req = CheckoutSessionRequest(
@@ -343,7 +541,6 @@ async def create_checkout_session(payload: CheckoutRequest, request: Request):
     )
     session = await stripe_checkout.create_checkout_session(req)
 
-    # Persist pending transaction + order
     now = datetime.now(timezone.utc).isoformat()
     await db.payment_transactions.insert_one({
         "id": str(uuid.uuid4()),
@@ -465,10 +662,8 @@ async def stripe_webhook(request: Request):
     return {"received": True}
 
 
-# ---------- ORDER ----------
 @api_router.post("/orders/manual")
 async def create_manual_order(payload: CheckoutRequest):
-    """Order without payment — saved for manual fulfillment."""
     line_items, subtotal, shipping, total = await _calc_totals(payload.items)
     if total <= 0:
         raise HTTPException(400, "Cart is empty")
@@ -503,7 +698,7 @@ async def get_order(order_id: str):
     return order
 
 
-# ---------- NEWSLETTER ----------
+# ---------- NEWSLETTER / CONTACT ----------
 class NewsletterIn(BaseModel):
     email: str
 
@@ -516,6 +711,20 @@ async def subscribe(payload: NewsletterIn):
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
     return {"ok": True}
+
+
+@api_router.post("/contact")
+async def contact(payload: ContactIn):
+    rec = {
+        "id": str(uuid.uuid4()),
+        "full_name": payload.full_name,
+        "email": payload.email,
+        "subject": payload.subject,
+        "message": payload.message,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.contact_messages.insert_one(rec)
+    return {"ok": True, "id": rec["id"]}
 
 
 # ---------- APP WIRING ----------

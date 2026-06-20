@@ -41,18 +41,18 @@ export default function Checkout() {
 
   if (items.length === 0) {
     return (
-      <div className="bg-[#0A0C10] text-white min-h-[80vh] flex items-center justify-center px-5">
+      <div className="bg-[#06080C] text-white min-h-[80vh] flex items-center justify-center px-5">
         <div className="text-center max-w-md">
-          <div className="font-display text-4xl uppercase mb-3">Empty rack</div>
-          <p className="text-[#9BA1B0] mb-6">
-            You don't have any gear staged. Head to the shop to build your loadout.
+          <div className="font-display text-4xl uppercase tracking-[0.1em] mb-3">Empty rack</div>
+          <p className="text-[#A0A6B5] mb-6">
+            No gear staged. Head to the Core Division to build your loadout.
           </p>
           <Link
             data-testid="checkout-empty-shop-btn"
-            to="/shop"
-            className="bg-[#FF4500] hover:bg-[#E63E00] px-6 py-3 font-mono uppercase tracking-widest text-sm inline-block"
+            to="/core"
+            className="bg-[#D4AF37] hover:bg-[#E6C454] text-black px-6 py-3 font-mono uppercase tracking-[0.3em] text-xs font-bold inline-block"
           >
-            Shop the line
+            Enter Core
           </Link>
         </div>
       </div>
@@ -88,30 +88,30 @@ export default function Checkout() {
       } else {
         const res = await createManualOrder(payload);
         clear();
-        toast.success("Order placed. We'll email you to confirm.");
+        toast.success("Order received. We'll confirm by email.");
         navigate(`/success?manual=1&order_id=${res.order_id}`);
       }
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.detail || "Checkout failed. Try again.");
+      toast.error(err?.response?.data?.detail || "Checkout failed.");
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-[#0A0C10] text-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-5 md:px-10 py-8">
+    <div className="bg-[#06080C] text-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-5 md:px-10 py-6">
         <Link
-          to="/shop"
-          className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-[0.25em] text-[#9BA1B0] hover:text-white"
+          to="/core"
+          className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.3em] text-[#A0A6B5] hover:text-white"
         >
           <ChevronLeft className="w-3 h-3" /> Continue shopping
         </Link>
       </div>
 
       <div className="max-w-7xl mx-auto px-5 md:px-10 pb-16">
-        <div className="label mb-2">/ Final muster</div>
-        <h1 className="font-display text-5xl sm:text-6xl uppercase leading-none mb-10">
+        <div className="label mb-2 text-[#D4AF37]">/ Final muster</div>
+        <h1 className="font-display text-5xl sm:text-6xl uppercase tracking-[0.05em] etched-steel leading-none mb-10">
           Checkout
         </h1>
 
@@ -120,7 +120,6 @@ export default function Checkout() {
           onSubmit={handleSubmit}
           className="grid lg:grid-cols-[1fr_400px] gap-10"
         >
-          {/* Shipping */}
           <div className="space-y-6">
             <Section title="01 — Officer details">
               <Field label="Full name" required>
@@ -141,7 +140,7 @@ export default function Checkout() {
                   value={form.customer_email}
                   onChange={update("customer_email")}
                   className={inputCls}
-                  placeholder="officer@dept.gov"
+                  placeholder="you@dept.gov"
                 />
               </Field>
             </Section>
@@ -186,9 +185,7 @@ export default function Checkout() {
                     className={inputCls}
                   >
                     {US_STATES.map((s) => (
-                      <option key={s} value={s} className="bg-[#0A0C10]">
-                        {s}
-                      </option>
+                      <option key={s} value={s} className="bg-[#06080C]">{s}</option>
                     ))}
                   </select>
                 </Field>
@@ -222,17 +219,15 @@ export default function Checkout() {
                   onClick={() => setMethod("stripe")}
                   className={`text-left p-4 border transition-colors ${
                     method === "stripe"
-                      ? "border-[#FF4500] bg-[#FF4500]/10"
-                      : "border-[#222631] hover:border-white"
+                      ? "border-[#D4AF37] bg-[#D4AF37]/10"
+                      : "border-[#1F2330] hover:border-white"
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <Lock className="w-4 h-4 text-[#FF4500]" />
-                    <span className="font-display uppercase text-lg">Stripe</span>
+                    <Lock className="w-4 h-4 text-[#D4AF37]" />
+                    <span className="font-display uppercase text-lg tracking-[0.05em]">Stripe</span>
                   </div>
-                  <p className="text-xs text-[#9BA1B0]">
-                    Pay securely with card. Encrypted by Stripe.
-                  </p>
+                  <p className="text-xs text-[#A0A6B5]">Pay securely with card. Encrypted.</p>
                 </button>
                 <button
                   type="button"
@@ -240,64 +235,49 @@ export default function Checkout() {
                   onClick={() => setMethod("manual")}
                   className={`text-left p-4 border transition-colors ${
                     method === "manual"
-                      ? "border-[#FF4500] bg-[#FF4500]/10"
-                      : "border-[#222631] hover:border-white"
+                      ? "border-[#D4AF37] bg-[#D4AF37]/10"
+                      : "border-[#1F2330] hover:border-white"
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <Truck className="w-4 h-4 text-[#FF4500]" />
-                    <span className="font-display uppercase text-lg">Reserve</span>
+                    <Truck className="w-4 h-4 text-[#D4AF37]" />
+                    <span className="font-display uppercase text-lg tracking-[0.05em]">Reserve</span>
                   </div>
-                  <p className="text-xs text-[#9BA1B0]">
-                    Reserve order. We'll contact you to confirm payment.
-                  </p>
+                  <p className="text-xs text-[#A0A6B5]">Reserve order. We'll contact to confirm payment.</p>
                 </button>
               </div>
             </Section>
           </div>
 
-          {/* Order summary */}
-          <aside className="bg-[#12151C] border border-[#222631] p-6 h-fit sticky top-24">
-            <div className="font-display text-2xl uppercase mb-4">Loadout</div>
-            <ul className="divide-y divide-[#222631] mb-4">
+          <aside className="bg-[#11141C] border border-[#1F2330] p-6 h-fit sticky top-24">
+            <div className="font-display text-2xl uppercase tracking-[0.1em] mb-4">Loadout</div>
+            <ul className="divide-y divide-[#1F2330] mb-4">
               {items.map((it) => (
-                <li
-                  key={it._key}
-                  className="py-3 flex gap-3"
-                  data-testid={`summary-item-${it._key}`}
-                >
+                <li key={it._key} className="py-3 flex gap-3" data-testid={`summary-item-${it._key}`}>
                   <div
-                    className="w-14 h-14 shrink-0 border border-[#222631] bg-[#0A0C10] relative"
-                    style={{
-                      background: `radial-gradient(circle, ${it.accent}33 0%, #0A0C10 70%)`,
-                    }}
+                    className="w-14 h-14 shrink-0 border border-[#1F2330] bg-[#06080C] relative"
+                    style={{ background: `radial-gradient(circle, ${it.accent || "#D4AF37"}33 0%, #06080C 70%)` }}
                   >
-                    <img
-                      src={it.image}
-                      alt={it.name}
-                      className="absolute inset-0 w-full h-full object-contain p-1.5"
-                    />
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#FF4500] text-white text-[10px] flex items-center justify-center font-mono">
+                    <img src={it.image} alt={it.name} className="absolute inset-0 w-full h-full object-cover" />
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#D4AF37] text-black text-[10px] flex items-center justify-center font-mono">
                       {it.quantity}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-display uppercase truncate">{it.name}</div>
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-[#9BA1B0]">
+                    <div className="text-sm font-display uppercase tracking-[0.05em] truncate">{it.name}</div>
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-[#A0A6B5]">
                       {it.size}{it.color ? ` · ${it.color}` : ""}
                     </div>
                   </div>
-                  <div className="text-sm font-mono">
-                    ${(it.price * it.quantity).toFixed(2)}
-                  </div>
+                  <div className="text-sm font-mono">${(it.price * it.quantity).toFixed(2)}</div>
                 </li>
               ))}
             </ul>
-            <div className="space-y-2 border-t border-[#222631] pt-3">
+            <div className="space-y-2 border-t border-[#1F2330] pt-3">
               <Row label="Subtotal" value={`$${subtotal.toFixed(2)}`} testid="summary-subtotal" />
               <Row label="Shipping" value={shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`} />
-              <div className="border-t border-[#222631] pt-3 flex justify-between">
-                <span className="font-display uppercase text-lg">Total</span>
+              <div className="border-t border-[#1F2330] pt-3 flex justify-between">
+                <span className="font-display uppercase text-lg tracking-[0.1em]">Total</span>
                 <span data-testid="summary-total" className="font-mono text-lg font-bold">
                   ${total.toFixed(2)}
                 </span>
@@ -307,11 +287,11 @@ export default function Checkout() {
               data-testid="checkout-submit-btn"
               type="submit"
               disabled={submitting || !isValid}
-              className="w-full mt-6 bg-[#FF4500] hover:bg-[#E63E00] disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 font-mono uppercase tracking-widest text-sm font-bold"
+              className="w-full mt-6 bg-[#D4AF37] hover:bg-[#E6C454] disabled:opacity-50 disabled:cursor-not-allowed text-black py-4 font-mono uppercase tracking-[0.3em] text-sm font-bold"
             >
-              {submitting ? "Processing..." : method === "stripe" ? "Pay with Stripe →" : "Reserve order →"}
+              {submitting ? "Processing..." : method === "stripe" ? "Pay with Stripe →" : "Reserve Order →"}
             </button>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-[#9BA1B0] text-center mt-3">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[#A0A6B5] text-center mt-3">
               <Lock className="w-3 h-3 inline mr-1" /> Encrypted checkout
             </p>
           </aside>
@@ -322,12 +302,12 @@ export default function Checkout() {
 }
 
 const inputCls =
-  "w-full bg-[#0A0C10] border border-[#222631] focus:border-[#FF4500] focus:ring-1 focus:ring-[#FF4500] outline-none px-4 py-3 text-sm text-white font-mono tracking-wide";
+  "w-full bg-[#06080C] border border-[#1F2330] focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] outline-none px-4 py-3 text-sm text-white font-mono tracking-wide";
 
 function Section({ title, children }) {
   return (
-    <div className="border border-[#222631] bg-[#12151C] p-6">
-      <div className="label mb-5">{title}</div>
+    <div className="border border-[#1F2330] bg-[#11141C] p-6">
+      <div className="label mb-5 text-[#D4AF37]">{title}</div>
       <div className="space-y-4">{children}</div>
     </div>
   );
@@ -336,8 +316,8 @@ function Section({ title, children }) {
 function Field({ label, required, children }) {
   return (
     <label className="block">
-      <span className="text-[10px] font-mono uppercase tracking-widest text-[#9BA1B0] block mb-2">
-        {label} {required && <span className="text-[#FF4500]">*</span>}
+      <span className="text-[10px] font-mono uppercase tracking-widest text-[#A0A6B5] block mb-2">
+        {label} {required && <span className="text-[#D4AF37]">*</span>}
       </span>
       {children}
     </label>
@@ -346,7 +326,7 @@ function Field({ label, required, children }) {
 
 function Row({ label, value, testid }) {
   return (
-    <div className="flex justify-between text-sm text-[#9BA1B0]">
+    <div className="flex justify-between text-sm text-[#A0A6B5]">
       <span>{label}</span>
       <span data-testid={testid} className="font-mono text-white">{value}</span>
     </div>

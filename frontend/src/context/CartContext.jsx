@@ -2,24 +2,30 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 
 const CartContext = createContext(null);
 
-const STORAGE_KEY = "ayard_cart_v1";
+const CART_KEY = "aegis_cart_v2";
+const UNLOCK_KEY = "aegis_legacy_unlocks_v1";
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [legacyUnlocks, setLegacyUnlocks] = useState({ ids: [], slugs: [], label: "" });
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(CART_KEY);
       if (saved) setItems(JSON.parse(saved));
-    } catch (e) {
-      /* ignore */
-    }
+      const u = localStorage.getItem(UNLOCK_KEY);
+      if (u) setLegacyUnlocks(JSON.parse(u));
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(CART_KEY, JSON.stringify(items));
   }, [items]);
+
+  useEffect(() => {
+    localStorage.setItem(UNLOCK_KEY, JSON.stringify(legacyUnlocks));
+  }, [legacyUnlocks]);
 
   const addItem = useCallback((product, { size, color, quantity = 1 }) => {
     setItems((prev) => {
@@ -38,7 +44,7 @@ export function CartProvider({ children }) {
           slug: product.slug,
           name: product.name,
           price: product.price,
-          image: product.image,
+          image: (product.images && product.images[0]) || product.image || "",
           accent: product.accent,
           size,
           color,
@@ -61,6 +67,14 @@ export function CartProvider({ children }) {
 
   const clear = useCallback(() => setItems([]), []);
 
+  const addUnlocks = useCallback((unlock) => {
+    setLegacyUnlocks((prev) => {
+      const ids = Array.from(new Set([...(prev.ids || []), ...(unlock.unlocked_product_ids || [])]));
+      const slugs = Array.from(new Set([...(prev.slugs || []), ...(unlock.unlocked_slugs || [])]));
+      return { ids, slugs, label: unlock.label || prev.label };
+    });
+  }, []);
+
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const count = items.reduce((s, i) => s + i.quantity, 0);
 
@@ -76,6 +90,8 @@ export function CartProvider({ children }) {
         count,
         drawerOpen,
         setDrawerOpen,
+        legacyUnlocks,
+        addUnlocks,
       }}
     >
       {children}

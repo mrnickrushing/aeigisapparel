@@ -13,18 +13,28 @@ export const fetchProducts = async (filters = {}) => {
   return data;
 };
 
-export const fetchProductFilters = async () => {
-  const { data } = await api.get("/products/filters");
-  return data;
-};
-
 export const fetchProduct = async (slug) => {
   const { data } = await api.get(`/products/${slug}`);
   return data;
 };
 
-export const quoteCheckout = async (items) => {
-  const { data } = await api.post("/checkout/quote", { items });
+export const fetchCampaigns = async () => {
+  const { data } = await api.get("/campaigns");
+  return data;
+};
+
+export const fetchCampaign = async (slug) => {
+  const { data } = await api.get(`/campaigns/${slug}`);
+  return data;
+};
+
+export const redeemLegacy = async (code) => {
+  const { data } = await api.post("/legacy/redeem", { code });
+  return data;
+};
+
+export const requestLegacy = async (payload) => {
+  const { data } = await api.post("/legacy/request", payload);
   return data;
 };
 
@@ -45,5 +55,10 @@ export const getCheckoutStatus = async (sessionId) => {
 
 export const subscribeNewsletter = async (email) => {
   const { data } = await api.post("/newsletter", { email });
+  return data;
+};
+
+export const sendContact = async (payload) => {
+  const { data } = await api.post("/contact", payload);
   return data;
 };

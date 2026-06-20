@@ -2,44 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============ FONTS ============ */
-@import url("https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
-/* ============ TACTICAL THEME TOKENS ============ */
+/* ============ AEGIS TOKENS ============ */
 @layer base {
     :root {
-        --background: 222 25% 5%;
+        --background: 222 35% 4%;
         --foreground: 0 0% 100%;
-        --card: 222 22% 9%;
+        --card: 222 25% 8%;
         --card-foreground: 0 0% 100%;
-        --popover: 222 22% 9%;
+        --popover: 222 25% 8%;
         --popover-foreground: 0 0% 100%;
-        --primary: 16 100% 50%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 222 20% 13%;
+        --primary: 43 65% 53%;
+        --primary-foreground: 0 0% 4%;
+        --secondary: 222 20% 12%;
         --secondary-foreground: 0 0% 100%;
-        --muted: 222 20% 13%;
+        --muted: 222 20% 12%;
         --muted-foreground: 220 9% 65%;
-        --accent: 16 100% 50%;
-        --accent-foreground: 0 0% 100%;
+        --accent: 43 65% 53%;
+        --accent-foreground: 0 0% 4%;
         --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 100%;
         --border: 222 18% 16%;
         --input: 222 18% 16%;
-        --ring: 16 100% 50%;
+        --ring: 43 65% 53%;
         --radius: 0;
 
-        --ay-bg: #0a0c10;
-        --ay-surface: #12151c;
-        --ay-surface-2: #1a1d24;
-        --ay-border: #222631;
-        --ay-border-2: #3a4150;
+        /* AEGIS brand */
+        --ay-bg: #06080c;
+        --ay-bg-2: #0a0d14;
+        --ay-surface: #11141c;
+        --ay-surface-2: #181c26;
+        --ay-border: #1f2330;
+        --ay-border-2: #2a3040;
         --ay-text: #ffffff;
-        --ay-text-2: #9ba1b0;
-        --ay-orange: #ff4500;
-        --ay-purple: #8b5fbf;
-        --ay-silver: #8c92a0;
-        --ay-olive: #4a5240;
+        --ay-text-2: #a0a6b5;
+        --ay-text-3: #6e7585;
+
+        /* CORE = steel blue */
+        --ay-core: #4a7fc1;
+        --ay-core-2: #6b9dd3;
+        --ay-core-soft: #2a3f5c;
+
+        /* LEGACY = antique gold */
+        --ay-gold: #d4af37;
+        --ay-gold-2: #e6c454;
+        --ay-gold-soft: #5c4a1a;
+
+        /* Status accents */
+        --ay-red: #c54a4a;
+        --ay-green: #4ea374;
     }
 }
 
@@ -56,25 +68,56 @@
         -moz-osx-font-smoothing: grayscale;
     }
     ::selection {
-        background: var(--ay-orange);
-        color: #fff;
+        background: var(--ay-gold);
+        color: #000;
     }
 }
 
-/* ============ UTILITY CLASSES ============ */
+/* ============ UTILS ============ */
 .font-display {
-    font-family: "Anton", "Impact", sans-serif;
-    letter-spacing: -0.01em;
+    font-family: "Cinzel", "Times New Roman", serif;
+    letter-spacing: 0.02em;
+    font-weight: 700;
 }
 .font-mono {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: "JetBrains Mono", monospace;
 }
 .label {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.25em;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--ay-silver);
+    color: var(--ay-text-3);
+}
+
+/* Etched metal headline */
+.etched {
+    background: linear-gradient(
+        180deg,
+        #f4ecd0 0%,
+        #d4af37 35%,
+        #8b6c1e 80%,
+        #4a3a10 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.4),
+        0 2px 4px rgba(0, 0, 0, 0.6);
+    filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.15));
+}
+.etched-steel {
+    background: linear-gradient(
+        180deg,
+        #f0f3f8 0%,
+        #b8c0cf 40%,
+        #6b7488 90%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
 }
 
 /* Grain noise overlay */
@@ -83,24 +126,13 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.08;
+    opacity: 0.07;
     z-index: 1;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
     mix-blend-mode: overlay;
 }
 
-/* Diagonal stripe pattern (warning/tactical) */
-.tactical-stripes {
-    background-image: repeating-linear-gradient(
-        45deg,
-        rgba(255, 69, 0, 0.06) 0px,
-        rgba(255, 69, 0, 0.06) 6px,
-        transparent 6px,
-        transparent 18px
-    );
-}
-
-/* Scanline */
+/* Tactical scanlines */
 .scanlines::after {
     content: "";
     position: absolute;
@@ -113,7 +145,18 @@
         rgba(255, 255, 255, 0.02) 3px,
         transparent 4px
     );
-    z-index: 1;
+    z-index: 2;
+}
+
+/* Diagonal warning stripes (gold) */
+.warning-stripes {
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(212, 175, 55, 0.08) 0px,
+        rgba(212, 175, 55, 0.08) 6px,
+        transparent 6px,
+        transparent 18px
+    );
 }
 
 /* Brushed metal */
@@ -126,14 +169,14 @@
         ),
         repeating-linear-gradient(
             90deg,
-            #1a1d24 0px,
-            #1a1d24 1px,
-            #12151c 1px,
-            #12151c 2px
+            #181c26 0px,
+            #181c26 1px,
+            #11141c 1px,
+            #11141c 2px
         );
 }
 
-/* Tactical corner brackets */
+/* Tactical corners */
 .corners {
     position: relative;
 }
@@ -143,7 +186,7 @@
     position: absolute;
     width: 14px;
     height: 14px;
-    border-color: var(--ay-orange);
+    border-color: var(--ay-gold);
     pointer-events: none;
 }
 .corners::before {
@@ -158,6 +201,10 @@
     border-bottom: 2px solid;
     border-right: 2px solid;
 }
+.corners-steel::before,
+.corners-steel::after {
+    border-color: var(--ay-core);
+}
 
 /* Marquee */
 @keyframes marquee {
@@ -169,10 +216,26 @@
     }
 }
 .animate-marquee {
-    animation: marquee 32s linear infinite;
+    animation: marquee 40s linear infinite;
 }
 
-/* Glitch flicker */
+/* Pulse ring (splash) */
+@keyframes pulseRing {
+    0% {
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 24px rgba(212, 175, 55, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    }
+}
+.pulse-ring {
+    animation: pulseRing 2.5s infinite;
+}
+
+/* Flicker / boot */
 @keyframes flicker {
     0%,
     18%,
@@ -186,18 +249,33 @@
     20%,
     24%,
     55% {
-        opacity: 0.6;
+        opacity: 0.5;
     }
 }
 .flicker {
-    animation: flicker 6s infinite;
+    animation: flicker 5s infinite;
 }
 
-/* Fade-in stagger */
+/* Boot lines reveal */
+@keyframes typeLine {
+    from {
+        opacity: 0;
+        transform: translateX(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+.type-line {
+    animation: typeLine 0.6s ease-out both;
+}
+
+/* Fade up */
 @keyframes fadeUp {
     from {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(14px);
     }
     to {
         opacity: 1;
@@ -208,7 +286,52 @@
     animation: fadeUp 0.8s ease-out both;
 }
 
-/* Hide scrollbars on horizontal lists */
+/* Drift in (slow zoom) for splash bg */
+@keyframes slowZoom {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.08);
+    }
+}
+.slow-zoom {
+    animation: slowZoom 18s ease-in-out infinite alternate;
+}
+
+/* HUD blink dot */
+@keyframes hudBlink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.25;
+    }
+}
+.hud-dot {
+    animation: hudBlink 1.6s infinite;
+}
+
+/* Sticker glow */
+.sticker-glow-gold {
+    filter: drop-shadow(0 0 24px rgba(212, 175, 55, 0.35))
+        drop-shadow(0 0 60px rgba(212, 175, 55, 0.15));
+}
+.sticker-glow-steel {
+    filter: drop-shadow(0 0 24px rgba(74, 127, 193, 0.35))
+        drop-shadow(0 0 60px rgba(74, 127, 193, 0.15));
+}
+.sticker-glow-fire {
+    filter: drop-shadow(0 0 24px rgba(255, 69, 0, 0.4))
+        drop-shadow(0 0 60px rgba(255, 69, 0, 0.18));
+}
+.sticker-glow-purple {
+    filter: drop-shadow(0 0 24px rgba(139, 95, 191, 0.4))
+        drop-shadow(0 0 60px rgba(139, 95, 191, 0.18));
+}
+
+/* Hide scrollbars */
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
@@ -217,12 +340,22 @@
     scrollbar-width: none;
 }
 
-/* Sticker glow */
-.sticker-glow {
-    filter: drop-shadow(0 0 20px rgba(255, 69, 0, 0.3))
-        drop-shadow(0 0 60px rgba(255, 69, 0, 0.15));
+/* Soft beveled divider line */
+.divider-gold {
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(212, 175, 55, 0.6) 50%,
+        transparent 100%
+    );
 }
-.sticker-glow-purple {
-    filter: drop-shadow(0 0 20px rgba(139, 95, 191, 0.35))
-        drop-shadow(0 0 60px rgba(139, 95, 191, 0.18));
+.divider-steel {
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(74, 127, 193, 0.6) 50%,
+        transparent 100%
+    );
 }

@@ -1,0 +1,43 @@
+{
+  "summary": "AEGIS rebrand E2E test (iteration 2). Backend: 19/19 pytest tests pass (products 9 total, core=4, legacy=5, campaigns=5, legacy redeem valid/invalid/case-insensitive, legacy request, contact, newsletter, manual order, Stripe session, award-only blocking enforced for both manual + Stripe). Frontend: Splash boot sequence -> ENTER -> /home works. Home hero + division cards + 5 campaign cards present. /core loads 4 products, category filters render, product card click routes correctly. ProductDetail (core) add-to-cart opens drawer with correct totals. ProductDetail (legacy /foundation-piece) add-to-cart is correctly disabled until product-redeem-btn submission with FOUNDATION-001; after redeem it enables. /legacy redeem bar accepts AYARD-MCSP-2024 and shows legacy-unlocked-banner (2 items). Legacy request form submits. Checkout manual flow creates order and redirects to /success?manual=1&order_id=...; all 9 checkout testids verified. /campaigns lists 5 cards (testid pattern campaign-list-card-{slug}). /campaigns/a-yard renders name + campaign-to-legacy link. /logbook shows heading + 3 entries. /contact submits successfully. Newsletter footer submits successfully.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "@app.on_event('startup' / 'shutdown')", "issue": "Deprecated FastAPI startup/shutdown hooks; migrate to lifespan context manager."},
+      {"endpoint": "/api/newsletter, /api/legacy/request, /api/contact", "issue": "email field uses plain str; consider pydantic EmailStr for validation."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/iteration_2.xml"
+  ],
+  "action_items": [
+    "(Spec consistency, optional) Review request listed campaign-card-thin-blue-line-co — actual campaign slug on Home is 'a-yard' (testid campaign-card-a-yard). Code matches Home.jsx, so spec text is stale; no code change needed.",
+    "(Spec consistency, optional) Review request listed legacy product redeem button as 'product-redeem-form submitted' but actual button testid is product-redeem-btn (not product-redeem-submit). Functionality verified; rename only if you want spec-strict naming.",
+    "(Optional) Migrate FastAPI startup/shutdown to lifespan handlers.",
+    "(Optional) Use pydantic EmailStr for email validation on /api/newsletter, /api/legacy/request, /api/contact."
+  ],
+  "critical_code_review_comments": [
+    "server.py (~750 LOC) still mixes models, seed, routes, Stripe, webhooks. Extract into routers/ + models/ + services/ as it grows.",
+    "Seed reseeds the whole DB when SEED_VERSION changes — works but destructive; consider migrations for production.",
+    "Award-only enforcement is centralized in _calc_totals — good (one chokepoint for manual + Stripe).",
+    "All _id projections excluded — no MongoDB ObjectId leakage. Good.",
+    "Frontend reads REACT_APP_BACKEND_URL from env — no hardcoded URLs.",
+    "Stripe webhook secret verification relies on emergentintegrations; no explicit signature validation in server.py."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (rewritten for AEGIS schema — 19 tests)"
+  ],
+  "success_rate": {"backend": "100% (19/19)", "frontend": "100% of requested flows"},
+  "test_credentials": "N/A — no auth in app.",
+  "seed_data_creation": "Backend auto-seeds 9 products (4 core + 5 legacy) and 5 campaigns on startup via SEED_VERSION='aegis-v1'. Pytest creates TEST_ prefixed orders/contacts/legacy_requests/newsletter subs in DB (clean periodically).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Splash gate is mandatory at '/'. Navigate directly to /home/etc. to bypass during deep flows. Legacy unlock state in localStorage key 'aegis_legacy_unlocks_v1'. Checkout page renders an empty state with testid 'checkout-empty-shop-btn' when cart is empty — you must add an item before testing the checkout-form. On /campaigns list, card testids are 'campaign-list-card-{slug}'; on Home, they are 'campaign-card-{slug}'. ProductDetail redeem submit is data-testid 'product-redeem-btn' (not product-redeem-submit as the spec suggested). Stripe session creates real checkout.stripe.com URL with sk_test_emergent — do not complete card form. Valid legacy codes: AYARD-MCSP-2024, MHT-CLINICIAN-2024, FOUNDATION-001, BUILT-ON-DISCIPLINE (case-insensitive).",
+  "rca of the issue": "No defects found. Two initial frontend test misses were due to my test selectors not matching code: (1) /campaigns list uses 'campaign-list-card-{slug}' not 'campaign-card-{slug}', (2) ProductDetail redeem button uses 'product-redeem-btn' not 'product-redeem-submit'. Retested with correct selectors — both flows pass. Code is consistent and functional; spec text in the review request is slightly stale vs. the actual code."
+}

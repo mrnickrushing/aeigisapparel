@@ -22,7 +22,6 @@ export default function Success() {
       return;
     }
     let cancelled = false;
-
     const poll = async () => {
       if (cancelled) return;
       if (polledRef.current >= 8) {
@@ -51,39 +50,37 @@ export default function Success() {
       }
     };
     poll();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId, isManual]);
 
   return (
-    <div className="bg-[#0A0C10] text-white min-h-screen flex items-center justify-center px-5 py-20">
-      <div className="max-w-xl w-full border border-[#222631] bg-[#12151C] p-8 md:p-12 corners relative">
-        <div className="absolute inset-0 tactical-stripes opacity-20 pointer-events-none" />
+    <div className="bg-[#06080C] text-white min-h-screen flex items-center justify-center px-5 py-20">
+      <div className="max-w-xl w-full border border-[#1F2330] bg-[#11141C] p-8 md:p-12 corners relative">
+        <div className="absolute inset-0 warning-stripes opacity-15 pointer-events-none" />
         <div className="relative z-10 text-center">
           {state === "paid" && (
             <>
-              <CheckCircle2 className="w-14 h-14 text-[#FF4500] mx-auto mb-4" />
-              <div className="label mb-3 text-[#FF4500]">/ Order locked in</div>
+              <CheckCircle2 className="w-14 h-14 text-[#D4AF37] mx-auto mb-4" />
+              <div className="label mb-3 text-[#D4AF37]">/ Order locked in</div>
               <h1
                 data-testid="success-heading"
-                className="font-display text-4xl sm:text-5xl uppercase mb-3"
+                className="font-display text-4xl sm:text-5xl uppercase tracking-[0.05em] mb-3"
               >
-                {isManual ? "Reservation received" : "Mission complete"}
+                {isManual ? "Reservation Received" : "Mission Complete"}
               </h1>
-              <p className="text-[#9BA1B0] mb-6">
+              <p className="text-[#A0A6B5] mb-6">
                 {isManual
-                  ? "Your order has been reserved. We'll reach out shortly to confirm payment and shipping."
-                  : "Your gear is staged. You'll receive a confirmation email shortly with tracking when we ship."}
+                  ? "Your order has been reserved. We'll reach out to confirm payment and shipping."
+                  : "Your gear is staged. Confirmation email incoming. We'll send tracking when we ship."}
               </p>
               {data?.order?.id && (
-                <div className="font-mono text-xs uppercase tracking-widest text-[#9BA1B0] mb-6">
+                <div className="font-mono text-xs uppercase tracking-widest text-[#A0A6B5] mb-6">
                   Order # <span className="text-white">{data.order.id.slice(0, 8).toUpperCase()}</span>
                 </div>
               )}
               {isManual && orderIdParam && (
-                <div className="font-mono text-xs uppercase tracking-widest text-[#9BA1B0] mb-6">
+                <div className="font-mono text-xs uppercase tracking-widest text-[#A0A6B5] mb-6">
                   Order # <span className="text-white">{orderIdParam.slice(0, 8).toUpperCase()}</span>
                 </div>
               )}
@@ -92,29 +89,25 @@ export default function Success() {
 
           {state === "polling" && (
             <>
-              <Clock className="w-14 h-14 text-[#FF4500] mx-auto mb-4 animate-spin" />
-              <div className="label mb-3">/ Verifying payment</div>
-              <h1 className="font-display text-4xl uppercase mb-3">
-                Confirming...
-              </h1>
-              <p className="text-[#9BA1B0]">
-                Hold tight. Verifying your payment with Stripe.
-              </p>
+              <Clock className="w-14 h-14 text-[#D4AF37] mx-auto mb-4 animate-spin" />
+              <div className="label mb-3 text-[#D4AF37]">/ Verifying</div>
+              <h1 className="font-display text-4xl uppercase tracking-[0.05em] mb-3">Confirming...</h1>
+              <p className="text-[#A0A6B5]">Verifying your payment with Stripe.</p>
             </>
           )}
 
           {(state === "expired" || state === "timeout" || state === "error") && (
             <>
-              <XCircle className="w-14 h-14 text-[#FF4500] mx-auto mb-4" />
-              <div className="label mb-3 text-[#FF4500]">/ Session issue</div>
-              <h1 className="font-display text-4xl uppercase mb-3">
+              <XCircle className="w-14 h-14 text-[#D4AF37] mx-auto mb-4" />
+              <div className="label mb-3 text-[#D4AF37]">/ Session issue</div>
+              <h1 className="font-display text-4xl uppercase tracking-[0.05em] mb-3">
                 Something went sideways
               </h1>
-              <p className="text-[#9BA1B0] mb-6">
+              <p className="text-[#A0A6B5] mb-6">
                 {state === "expired"
-                  ? "Your checkout session expired. Please try again."
+                  ? "Checkout session expired. Try again."
                   : state === "timeout"
-                  ? "Payment status check timed out. Check your email for confirmation."
+                  ? "Status check timed out. Check your email."
                   : "We couldn't verify your payment. If you were charged, contact support."}
               </p>
             </>
@@ -123,14 +116,14 @@ export default function Success() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               data-testid="success-shop-btn"
-              to="/shop"
-              className="bg-[#FF4500] hover:bg-[#E63E00] px-6 py-3 font-mono uppercase tracking-widest text-xs font-bold"
+              to="/core"
+              className="bg-[#D4AF37] hover:bg-[#E6C454] text-black px-6 py-3 font-mono uppercase tracking-[0.3em] text-xs font-bold"
             >
-              Continue shopping
+              Continue Shopping
             </Link>
             <Link
-              to="/"
-              className="border border-[#8C92A0] hover:border-white px-6 py-3 font-mono uppercase tracking-widest text-xs"
+              to="/home"
+              className="border border-[#A0A6B5] hover:border-white px-6 py-3 font-mono uppercase tracking-[0.3em] text-xs"
             >
               Home
             </Link>
