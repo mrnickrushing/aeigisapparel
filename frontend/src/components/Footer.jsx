@@ -198,7 +198,7 @@ export default function Footer() {
                 { Icon: Instagram, label: "Instagram", href: "#" },
                 { Icon: Facebook, label: "Facebook", href: "#" },
                 { Icon: Youtube, label: "YouTube", href: "#" },
-                { Icon: Mail, label: "Email", href: "mailto:support@rushingtechnologies.com" },
+                { Icon: Mail, label: "Email", href: "mailto:info@strengthinorder.com" },
               ].map(({ Icon, label, href }) => (
                 <a
                   key={label}

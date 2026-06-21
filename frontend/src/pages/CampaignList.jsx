@@ -46,7 +46,7 @@ export default function CampaignList() {
               const Body = (
                 <div
                   data-testid={`campaign-list-card-${c.slug}`}
-                  className="group relative bg-[#11141C] border border-[#1F2330] hover:border-[var(--accent)] transition-colors h-full"
+                  className="group relative bg-[#11141C] border border-[#1F2330] hover:border-[var(--accent)] transition-all duration-300 h-full overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.28)] hover:shadow-[0_22px_56px_rgba(0,0,0,0.46)] hover:-translate-y-1"
                   style={{ "--accent": accent }}
                 >
                   <div className="aspect-[16/10] relative overflow-hidden brushed">
@@ -62,6 +62,8 @@ export default function CampaignList() {
                       }`}
                       loading="lazy"
                     />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,transparent_24%,rgba(0,0,0,0.15)_70%,rgba(0,0,0,0.72)_100%)]" />
+                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#06080C] to-transparent" />
                     {locked && (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Lock className="w-10 h-10 text-[#6E7585]" />
@@ -81,8 +83,8 @@ export default function CampaignList() {
                       {c.status === "active" ? "Active" : c.status === "coming_soon" ? "Coming Soon" : "Classified"}
                     </div>
                   </div>
-                  <div className="p-5">
-                    <div className="font-display text-2xl uppercase tracking-[0.08em] leading-tight">
+                  <div className="p-5 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),transparent)]">
+                    <div className="font-display text-2xl uppercase tracking-[0.08em] leading-tight drop-shadow-[0_1px_0_rgba(0,0,0,0.6)]">
                       {c.name}
                     </div>
                     <p className="text-sm text-[#A0A6B5] mt-2">{c.tagline}</p>
