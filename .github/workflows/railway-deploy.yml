@@ -16,7 +16,6 @@ jobs:
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-      RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
       SENTRY_URL: https://sentry.io/
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
       SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
@@ -37,7 +36,6 @@ jobs:
         run: |
           test -n "$RAILWAY_TOKEN" || (echo "Missing RAILWAY_TOKEN" && exit 1)
           test -n "$RAILWAY_PROJECT_ID" || (echo "Missing RAILWAY_PROJECT_ID" && exit 1)
-          test -n "$RAILWAY_SERVICE_ID" || (echo "Missing RAILWAY_SERVICE_ID" && exit 1)
 
       - name: Validate Sentry secrets
         run: |
@@ -57,13 +55,13 @@ jobs:
         run: >
           npx -y @railway/cli@latest up --ci
           --project "$RAILWAY_PROJECT_ID"
-          --service "$RAILWAY_SERVICE_ID"
+          --service aegis-app
           --environment production
 
       - name: Create and finalize Sentry release
         working-directory: frontend
         run: |
-          npx -y @sentry/cli@2.63.0 releases new "$SENTRY_RELEASE"
-          npx -y @sentry/cli@2.63.0 releases set-commits "$SENTRY_RELEASE" --auto
-          npx -y @sentry/cli@2.63.0 releases files "$SENTRY_RELEASE" upload-sourcemaps build/static/js build/static/css --rewrite --url-prefix "~/static"
-          npx -y @sentry/cli@2.63.0 releases finalize "$SENTRY_RELEASE"
+          npx -y @sentry/cli@latest releases new "$SENTRY_RELEASE"
+          npx -y @sentry/cli@latest releases set-commits "$SENTRY_RELEASE" --auto
+          npx -y @sentry/cli@latest releases files "$SENTRY_RELEASE" upload-sourcemaps build/static/js build/static/css --rewrite --url-prefix "~/static"
+          npx -y @sentry/cli@latest releases finalize "$SENTRY_RELEASE"
