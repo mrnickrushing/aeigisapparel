@@ -692,19 +692,19 @@ async def upsert_newsletter_subscriber(
             {"email": email_normalized},
         ]
     }
+    created_value = existing.get("created_at") if existing else (created_at or now)
     doc = {
         "id": existing.get("id") if existing else str(uuid.uuid4()),
         "email": email_normalized,
         "email_normalized": email_normalized,
         "status": status,
         "confirm_token_hash": confirm_token_hash,
-        "created_at": existing.get("created_at") if existing else (created_at or now),
         "updated_at": now,
         "confirmed_at": now if status == "confirmed" else existing.get("confirmed_at") if existing else None,
     }
     await db.newsletter.update_one(
         filter_query,
-        {"$set": doc, "$setOnInsert": {"created_at": doc["created_at"]}},
+        {"$set": doc, "$setOnInsert": {"created_at": created_value}},
         upsert=True,
     )
     return doc
