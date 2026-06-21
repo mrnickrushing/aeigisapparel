@@ -696,11 +696,6 @@ async def admin_list_contacts():
 
 
 def _build_newsletter_html(subject: str, body: str, email: str) -> str:
-    paragraphs = "".join(
-        f"<p style='margin:0 0 16px;line-height:1.6;'>{p}</p>"
-        for p in body.split("\n")
-        if p.strip()
-    )
     unsub_url = f"{PUBLIC_SITE_URL}/api/newsletter/unsubscribe?email={email}&sig={_unsubscribe_signature(email)}"
     return f"""
     <div style="background:#06080C;padding:32px;font-family:Arial,Helvetica,sans-serif;color:#E5E7EB;">
@@ -708,7 +703,7 @@ def _build_newsletter_html(subject: str, body: str, email: str) -> str:
         <div style="font-family:Georgia,serif;letter-spacing:4px;font-size:28px;color:#D4AF37;text-transform:uppercase;text-align:center;margin-bottom:24px;">AEGIS</div>
         <div style="border-top:1px solid #2A3040;border-bottom:1px solid #2A3040;padding:24px 0;">
           <h1 style="font-size:18px;text-transform:uppercase;letter-spacing:2px;color:#fff;margin:0 0 16px;">{subject}</h1>
-          {paragraphs}
+          <div style="line-height:1.6;">{body}</div>
         </div>
         <p style="font-size:11px;color:#6E7585;text-align:center;margin-top:24px;text-transform:uppercase;letter-spacing:2px;">
           Strength in Order &middot; <a href="{unsub_url}" style="color:#6E7585;">Unsubscribe</a>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
-import Logo from "../../components/Logo";
+import AdminShell from "./AdminShell";
 import { adminLogin, getAdminToken } from "../../lib/adminApi";
 
 export default function AdminLogin() {
@@ -27,43 +27,57 @@ export default function AdminLogin() {
   };
 
   return (
-    <div
-      data-testid="admin-login-page"
-      className="min-h-screen bg-[#06080C] text-white flex items-center justify-center px-5"
-    >
-      <form
-        onSubmit={submit}
-        className="w-full max-w-sm border border-[#1F2330] bg-[#0A0D14] p-8"
+    <AdminShell>
+      <div
+        data-testid="admin-login-page"
+        className="min-h-[calc(100vh-34px)] flex items-center justify-center px-5 py-16"
       >
-        <div className="flex flex-col items-center mb-8">
-          <Logo className="w-14 h-14 mb-3" />
-          <div className="font-display text-2xl etched-steel">AEGIS ADMIN</div>
-          <div className="label mt-1 text-[#6E7585]">Authorized Access Only</div>
-        </div>
-
-        <label className="label text-[#D4AF37] block mb-2">Password</label>
-        <div className="flex items-center gap-2 bg-[#06080C] border border-[#1F2330] focus-within:border-[#D4AF37] px-4 py-3 mb-6">
-          <Lock className="w-4 h-4 text-[#6E7585]" />
-          <input
-            data-testid="admin-password-input"
-            type="password"
-            required
-            autoFocus
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="flex-1 bg-transparent outline-none font-mono text-sm tracking-wider"
-            placeholder="••••••••"
-          />
-        </div>
-
-        <button
-          data-testid="admin-login-submit"
-          disabled={loading}
-          className="w-full bg-[#D4AF37] hover:bg-[#E6C454] disabled:opacity-60 px-5 py-3 font-mono uppercase tracking-widest text-[11px] font-bold text-black"
+        <form
+          onSubmit={submit}
+          className="corners fade-up w-full max-w-[460px] bg-[#11141C] border border-[#2A3040] p-10 md:p-12"
         >
-          {loading ? "Verifying..." : "Enter"}
-        </button>
-      </form>
-    </div>
+          <div className="flex items-center justify-center gap-2 mb-5 label text-[#D4AF37]">
+            <span className="hud-dot inline-block w-1.5 h-1.5 bg-[#D4AF37]" />
+            AEGIS // Protocol · 0001
+          </div>
+          <h2 className="etched font-display text-4xl text-center mb-2">ADMIN</h2>
+          <div className="flex items-center gap-4 my-6">
+            <span className="flex-1 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/60 to-transparent" />
+            <span className="label text-[#6E7585] whitespace-nowrap text-[9px]">
+              Strength in Order
+            </span>
+            <span className="flex-1 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/60 to-transparent" />
+          </div>
+
+          <label className="label text-[#6E7585] block mb-2">Admin Password</label>
+          <div className="flex items-center gap-2 bg-[#06080C] border border-[#2A3040] focus-within:border-[#D4AF37] px-4 py-3.5 mb-6">
+            <Lock className="w-4 h-4 text-[#6E7585]" />
+            <input
+              data-testid="admin-password-input"
+              type="password"
+              required
+              autoFocus
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="flex-1 bg-transparent outline-none font-mono text-sm tracking-wider"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button
+            data-testid="admin-login-submit"
+            disabled={loading}
+            className="pulse-ring w-full border-2 border-[#D4AF37] bg-[#D4AF37]/10 hover:bg-[#D4AF37] hover:text-black disabled:opacity-50 text-[#D4AF37] px-5 py-4 font-mono uppercase tracking-[0.4em] text-[13px] font-semibold transition-colors"
+          >
+            {loading ? "Verifying..." : "[ Authenticate ]"}
+          </button>
+
+          <p className="label text-[#6E7585] mt-6 leading-relaxed text-[9px] border-l-2 border-[#2A3040] pl-4">
+            Validated against the admin password on the backend. A session token is issued on
+            success and held only in this browser.
+          </p>
+        </form>
+      </div>
+    </AdminShell>
   );
 }
