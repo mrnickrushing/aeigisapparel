@@ -37,12 +37,12 @@ export default function Header() {
             to="/home"
             className="flex items-center gap-3 group"
           >
-            <Logo className="w-8 h-8" />
+            <Logo className="w-11 h-11" />
             <div className="leading-none">
-              <div className="font-display text-xl tracking-[0.15em] etched-steel">
+              <div className="font-display text-2xl tracking-[0.15em] etched-steel">
                 AEGIS
               </div>
-              <div className="text-[9px] font-mono uppercase tracking-[0.3em] text-[#6E7585] mt-0.5">
+              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-[#6E7585] mt-0.5">
                 Strength in Order
               </div>
             </div>
