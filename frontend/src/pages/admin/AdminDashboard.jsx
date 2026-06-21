@@ -89,12 +89,14 @@ export default function AdminDashboard() {
     navigate("/admin/login", { replace: true });
   };
 
+  const confirmedSubscribers = subscribers.filter((s) => !s.status || s.status === "confirmed");
+
   const submitBlast = async (e) => {
     e.preventDefault();
     if (!subject.trim() || !body.trim()) return;
     if (
       !window.confirm(
-        `Transmit this broadcast to ${subscribers.length} subscriber(s)? This cannot be undone.`
+        `Transmit this broadcast to ${confirmedSubscribers.length} confirmed subscriber(s)? This cannot be undone.`
       )
     ) {
       return;
@@ -178,26 +180,41 @@ export default function AdminDashboard() {
                         <tr className="text-left label text-[#6E7585] border-b border-[#1F2330]">
                           <th className="px-6 py-3 font-normal">#</th>
                           <th className="px-6 py-3 font-normal">Email</th>
+                          <th className="px-6 py-3 font-normal">Status</th>
                           <th className="px-6 py-3 font-normal">Signed Up</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {subscribers.map((s, i) => (
-                          <tr key={s.id} className="border-b border-[#1F2330]/60 hover:bg-[#181C26]/60">
-                            <td className="px-6 py-3 text-[#6E7585] font-mono text-xs">
-                              {String(i + 1).padStart(3, "0")}
-                            </td>
-                            <td className="px-6 py-3 font-mono">
-                              <span className="inline-flex items-center gap-2">
-                                <Mail className="w-3.5 h-3.5 text-[#6E7585]" />
-                                {s.email}
-                              </span>
-                            </td>
-                            <td className="px-6 py-3 text-[#A0A6B5] font-mono text-xs">
-                              {new Date(s.created_at).toLocaleString()}
-                            </td>
-                          </tr>
-                        ))}
+                        {subscribers.map((s, i) => {
+                          const isConfirmed = !s.status || s.status === "confirmed";
+                          return (
+                            <tr key={s.id} className="border-b border-[#1F2330]/60 hover:bg-[#181C26]/60">
+                              <td className="px-6 py-3 text-[#6E7585] font-mono text-xs">
+                                {String(i + 1).padStart(3, "0")}
+                              </td>
+                              <td className="px-6 py-3 font-mono">
+                                <span className="inline-flex items-center gap-2">
+                                  <Mail className="w-3.5 h-3.5 text-[#6E7585]" />
+                                  {s.email}
+                                </span>
+                              </td>
+                              <td className="px-6 py-3 font-mono text-xs">
+                                <span
+                                  className={
+                                    isConfirmed
+                                      ? "text-[#4EA374]"
+                                      : "text-[#D4AF37]"
+                                  }
+                                >
+                                  {isConfirmed ? "Confirmed" : "Pending"}
+                                </span>
+                              </td>
+                              <td className="px-6 py-3 text-[#A0A6B5] font-mono text-xs">
+                                {new Date(s.created_at).toLocaleString()}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -235,20 +252,20 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     data-testid="admin-blast-submit"
-                    disabled={sending || subscribers.length === 0}
+                    disabled={sending || confirmedSubscribers.length === 0}
                     className="w-full flex items-center justify-center gap-2 border-2 border-[#D4AF37] bg-[#D4AF37]/10 hover:bg-[#D4AF37] hover:text-black disabled:opacity-50 text-[#D4AF37] px-5 py-4 font-mono uppercase tracking-[0.3em] text-[12px] font-semibold transition-colors"
                   >
                     {sending ? (
                       "Sending..."
                     ) : (
                       <>
-                        Transmit to {subscribers.length} Subscribers <Send className="w-3.5 h-3.5" />
+                        Transmit to {confirmedSubscribers.length} Confirmed Subscribers <Send className="w-3.5 h-3.5" />
                       </>
                     )}
                   </button>
                   <p className="label text-[#6E7585] text-[9px] leading-relaxed border-l-2 border-[#2A3040] pl-4">
                     Sent via Resend with an AEGIS letterhead and a per-subscriber unsubscribe link
-                    added automatically.
+                    added automatically. Only confirmed subscribers receive broadcasts.
                   </p>
                 </form>
               </Panel>

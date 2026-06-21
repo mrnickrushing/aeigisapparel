@@ -117,10 +117,10 @@ export default function Contact() {
         <div className="mt-8 flex items-center gap-3 text-[#A0A6B5] text-sm">
           <Mail className="w-4 h-4 text-[#D4AF37]" />
           <a
-            href="mailto:support@rushingtechnologies.com"
+            href="mailto:info@strengthinorder.com"
             className="font-mono uppercase tracking-widest text-xs"
           >
-            support@rushingtechnologies.com
+            info@strengthinorder.com
           </a>
         </div>
       </section>

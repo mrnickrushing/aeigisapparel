@@ -1,13 +1,16 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Header, Request, Depends
 from fastapi.responses import HTMLResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from email_validator import EmailNotValidError, validate_email
 import os
 import logging
+import hashlib
+import re
+import secrets
 import uuid
 import hmac
-import hashlib
 import asyncio
 import requests
 import jwt
@@ -28,6 +31,15 @@ SENTRY_DSN = os.environ.get("SENTRY_DSN", "").strip()
 SENTRY_ENVIRONMENT = os.environ.get("SENTRY_ENVIRONMENT", "production").strip()
 SENTRY_RELEASE = os.environ.get("SENTRY_RELEASE", "").strip() or None
 SENTRY_TRACES_SAMPLE_RATE = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.1"))
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
+NEWSLETTER_FROM_EMAIL = os.environ.get("NEWSLETTER_FROM_EMAIL", "AEGIS <newsletter@strengthinorder.com>").strip()
+NEWSLETTER_ADMIN_TOKEN = os.environ.get("NEWSLETTER_ADMIN_TOKEN", "").strip()
+NEWSLETTER_CONFIRMATION_REQUIRED = os.environ.get("NEWSLETTER_CONFIRMATION_REQUIRED", "true").strip().lower() not in {
+    "0",
+    "false",
+    "no",
+    "off",
+}
 
 if SENTRY_DSN:
     sentry_sdk.init(
@@ -51,8 +63,6 @@ ADMIN_JWT_SECRET = os.environ.get("ADMIN_JWT_SECRET") or hashlib.sha256(
     f"aegis-admin::{ADMIN_PASSWORD}".encode()
 ).hexdigest()
 ADMIN_TOKEN_TTL_SECONDS = 12 * 60 * 60
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
-RESEND_FROM_EMAIL = os.environ.get("RESEND_FROM_EMAIL", "AEGIS <newsletter@strengthinorder.com>")
 PUBLIC_SITE_URL = os.environ.get("PUBLIC_SITE_URL", "https://strengthinorder.com")
 
 # Bump this to wipe + reseed products & campaigns on next startup
@@ -111,6 +121,16 @@ class ContactIn(BaseModel):
     email: str
     subject: Optional[str] = ""
     message: str
+
+
+class NewsletterIn(BaseModel):
+    email: str
+
+
+class NewsletterSendIn(BaseModel):
+    subject: str
+    html: str
+    text: Optional[str] = None
 
 
 class AdminLoginIn(BaseModel):
@@ -611,18 +631,245 @@ async def create_checkout_session(payload: CheckoutSessionIn):
 
 
 # ---------- NEWSLETTER / CONTACT ----------
-class NewsletterIn(BaseModel):
-    email: str
+def normalize_email_address(value: str) -> str:
+    candidate = value.strip().lower()
+    try:
+        parsed = validate_email(candidate, check_deliverability=False)
+    except EmailNotValidError as exc:
+        raise HTTPException(400, f"Invalid email address: {exc}") from exc
+    return parsed.email.lower()
+
+
+def newsletter_confirmation_enabled() -> bool:
+    return bool(RESEND_API_KEY) and NEWSLETTER_CONFIRMATION_REQUIRED
+
+
+def newsletter_token_hash(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def plain_text_from_html(html: str) -> str:
+    text = re.sub(r"<[^>]+>", " ", html)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text or "AEGIS newsletter"
+
+
+def send_resend_email(to_email: str, subject: str, html: str, text: Optional[str] = None) -> None:
+    if not RESEND_API_KEY:
+        raise HTTPException(503, "RESEND_API_KEY is not configured")
+
+    payload = {
+        "from": NEWSLETTER_FROM_EMAIL,
+        "to": [to_email],
+        "subject": subject,
+        "html": html,
+        "text": text or plain_text_from_html(html),
+    }
+    try:
+        response = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=20,
+        )
+    except requests.RequestException as exc:
+        raise HTTPException(502, f"Resend request failed: {exc}") from exc
+    if response.status_code >= 400:
+        raise HTTPException(
+            502,
+            f"Resend request failed: {response.status_code} {response.text[:500]}",
+        )
+
+
+async def get_newsletter_subscriber(email_normalized: str) -> Optional[dict]:
+    return await db.newsletter.find_one(
+        {
+            "$or": [
+                {"email_normalized": email_normalized},
+                {"email": email_normalized},
+            ]
+        },
+        {"_id": 0},
+    )
+
+
+async def upsert_newsletter_subscriber(
+    *,
+    email_normalized: str,
+    status: str,
+    confirm_token_hash: Optional[str],
+    created_at: Optional[str] = None,
+) -> dict:
+    now = datetime.now(timezone.utc).isoformat()
+    existing = await get_newsletter_subscriber(email_normalized)
+    filter_query = {
+        "$or": [
+            {"email_normalized": email_normalized},
+            {"email": email_normalized},
+        ]
+    }
+    created_value = existing.get("created_at") if existing else (created_at or now)
+    doc = {
+        "id": existing.get("id") if existing else str(uuid.uuid4()),
+        "email": email_normalized,
+        "email_normalized": email_normalized,
+        "status": status,
+        "confirm_token_hash": confirm_token_hash,
+        "updated_at": now,
+        "confirmed_at": now if status == "confirmed" else existing.get("confirmed_at") if existing else None,
+    }
+    await db.newsletter.update_one(
+        filter_query,
+        {"$set": doc, "$setOnInsert": {"created_at": created_value}},
+        upsert=True,
+    )
+    return doc
+
+
+def require_newsletter_admin(token: Optional[str]) -> None:
+    if not NEWSLETTER_ADMIN_TOKEN:
+        raise HTTPException(503, "Newsletter admin token is not configured")
+    if not token or token != NEWSLETTER_ADMIN_TOKEN:
+        raise HTTPException(401, "Unauthorized")
 
 
 @api_router.post("/newsletter")
-async def subscribe(payload: NewsletterIn):
-    await db.newsletter.insert_one({
-        "id": str(uuid.uuid4()),
-        "email": payload.email,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-    })
-    return {"ok": True}
+async def subscribe(request: Request, payload: NewsletterIn):
+    email_normalized = normalize_email_address(payload.email)
+    existing = await get_newsletter_subscriber(email_normalized)
+
+    if existing and existing.get("status") == "confirmed":
+        return {
+            "ok": True,
+            "subscribed": True,
+            "status": "confirmed",
+            "email": email_normalized,
+            "message": "You are already on the list.",
+        }
+
+    confirmation_enabled = newsletter_confirmation_enabled()
+    token = secrets.token_urlsafe(32) if confirmation_enabled else None
+    status = "pending" if confirmation_enabled else "confirmed"
+    await upsert_newsletter_subscriber(
+        email_normalized=email_normalized,
+        status=status,
+        confirm_token_hash=newsletter_token_hash(token) if token else None,
+    )
+
+    if confirmation_enabled and token:
+        confirm_url = f"{str(request.base_url).rstrip('/')}/api/newsletter/confirm?token={token}"
+        try:
+            send_resend_email(
+                email_normalized,
+                "Confirm your AEGIS newsletter subscription",
+                html=(
+                    "<p>Confirm your AEGIS newsletter subscription.</p>"
+                    f'<p><a href="{confirm_url}">Confirm subscription</a></p>'
+                    "<p>If you did not request this, you can ignore this message.</p>"
+                ),
+                text=f"Confirm your AEGIS newsletter subscription: {confirm_url}",
+            )
+        except HTTPException:
+            await db.newsletter.update_one(
+                {"email_normalized": email_normalized, "status": "pending"},
+                {
+                    "$set": {
+                        "status": "confirmed",
+                        "confirm_token_hash": None,
+                        "confirmed_at": datetime.now(timezone.utc).isoformat(),
+                        "updated_at": datetime.now(timezone.utc).isoformat(),
+                    }
+                },
+            )
+            return {
+                "ok": True,
+                "subscribed": True,
+                "status": "confirmed",
+                "email": email_normalized,
+                "message": "You are on the list. Confirmation email could not be sent right now, so your subscription was saved directly.",
+            }
+        return {
+            "ok": True,
+            "subscribed": False,
+            "status": "pending",
+            "email": email_normalized,
+            "message": "Check your inbox to confirm your subscription.",
+        }
+
+    return {
+        "ok": True,
+        "subscribed": True,
+        "status": "confirmed",
+        "email": email_normalized,
+        "message": "You are on the list.",
+    }
+
+
+@api_router.get("/newsletter/confirm")
+async def confirm_newsletter(token: str):
+    token_hash = newsletter_token_hash(token.strip())
+    doc = await db.newsletter.find_one({"confirm_token_hash": token_hash}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Confirmation token not found")
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db.newsletter.update_one(
+        {"id": doc["id"]},
+        {
+            "$set": {
+                "status": "confirmed",
+                "confirmed_at": now,
+                "updated_at": now,
+                "confirm_token_hash": None,
+            }
+        },
+    )
+    return {
+        "ok": True,
+        "email": doc.get("email"),
+        "message": "Subscription confirmed.",
+    }
+
+
+@api_router.get("/newsletter/subscribers")
+async def list_newsletter_subscribers(x_newsletter_admin_token: Optional[str] = Header(default=None, alias="X-Newsletter-Admin-Token")):
+    require_newsletter_admin(x_newsletter_admin_token)
+    docs = await db.newsletter.find({}, {"_id": 0}).sort("created_at", 1).to_list(1000)
+    return docs
+
+
+@api_router.post("/newsletter/send")
+async def send_newsletter(
+    payload: NewsletterSendIn,
+    x_newsletter_admin_token: Optional[str] = Header(default=None, alias="X-Newsletter-Admin-Token"),
+):
+    require_newsletter_admin(x_newsletter_admin_token)
+    if not RESEND_API_KEY:
+        raise HTTPException(503, "RESEND_API_KEY is not configured")
+
+    docs = await db.newsletter.find(
+        {"$or": [{"status": "confirmed"}, {"status": {"$exists": False}}]},
+        {"_id": 0, "email": 1, "email_normalized": 1},
+    ).to_list(5000)
+    sent = 0
+    failed: List[str] = []
+    text = payload.text or plain_text_from_html(payload.html)
+
+    for sub in docs:
+        target = (sub.get("email_normalized") or sub.get("email") or "").strip().lower()
+        if not target:
+            continue
+        try:
+            send_resend_email(target, payload.subject, payload.html, text)
+        except HTTPException:
+            failed.append(target)
+        else:
+            sent += 1
+
+    return {"ok": True, "sent": sent, "failed": failed, "total": len(docs)}
 
 
 @api_router.post("/contact")
@@ -718,14 +965,17 @@ async def admin_send_newsletter(payload: NewsletterBlastIn):
     if not RESEND_API_KEY:
         raise HTTPException(status_code=503, detail="Email sending is not configured")
 
-    subscribers = await db.newsletter.find({}, {"_id": 0, "email": 1}).to_list(10000)
-    emails = [s["email"] for s in subscribers if s.get("email")]
+    subscribers = await db.newsletter.find(
+        {"$or": [{"status": "confirmed"}, {"status": {"$exists": False}}]},
+        {"_id": 0, "email": 1, "email_normalized": 1},
+    ).to_list(10000)
+    emails = [s.get("email_normalized") or s.get("email") for s in subscribers if s.get("email") or s.get("email_normalized")]
     if not emails:
         return {"sent": 0, "failed": 0, "total": 0}
 
     batch = [
         {
-            "from": RESEND_FROM_EMAIL,
+            "from": NEWSLETTER_FROM_EMAIL,
             "to": [email],
             "subject": payload.subject,
             "html": _build_newsletter_html(payload.subject, payload.body, email),

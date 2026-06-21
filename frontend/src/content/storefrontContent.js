@@ -1,7 +1,8 @@
-const supportEmail = "support@rushingtechnologies.com";
+export const supportEmail = "support@rushingtechnologies.com";
+export const generalEmail = "info@strengthinorder.com";
 
 const legalCommonIntro = {
-  supportEmail,
+  supportEmail: generalEmail,
   effectiveDate: "June 20, 2026",
 };
 

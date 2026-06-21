@@ -22,7 +22,7 @@ export default function ProductCard({ product, divisionAccent }) {
     <Link
       data-testid={`product-card-${product.slug}`}
       to={`/product/${product.slug}`}
-      className="group block bg-[#11141C] border border-[#1F2330] hover:border-[var(--hover)] transition-colors relative"
+      className="group block bg-[#11141C] border border-[#1F2330] hover:border-[var(--hover)] transition-all duration-300 relative overflow-hidden shadow-[0_14px_40px_rgba(0,0,0,0.32)] hover:shadow-[0_24px_60px_rgba(0,0,0,0.48)] hover:-translate-y-1"
       style={{ "--hover": accent }}
     >
       <div className="relative aspect-[4/5] overflow-hidden brushed">
@@ -38,6 +38,8 @@ export default function ProductCard({ product, divisionAccent }) {
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           loading="lazy"
         />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,transparent_18%,rgba(0,0,0,0.05)_68%,rgba(0,0,0,0.7)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#06080C] to-transparent" />
         {product.badge && (
           <div
             className="absolute top-3 left-3 text-[9px] font-mono uppercase tracking-[0.25em] px-2 py-1 border"
@@ -62,14 +64,14 @@ export default function ProductCard({ product, divisionAccent }) {
         )}
       </div>
 
-      <div className="p-4 border-t border-[#1F2330]">
+      <div className="p-4 border-t border-[#1F2330] bg-[linear-gradient(180deg,rgba(255,255,255,0.03),transparent)]">
         <div
           className="text-[10px] font-mono uppercase tracking-[0.25em] mb-1"
           style={{ color: accent }}
         >
           {product.division === "legacy" ? "Legacy Division" : "Core Division"}
         </div>
-        <div className="font-display text-base uppercase tracking-[0.05em] leading-tight mb-2 group-hover:text-[var(--hover)] transition-colors">
+        <div className="font-display text-base uppercase tracking-[0.05em] leading-tight mb-2 group-hover:text-[var(--hover)] transition-colors drop-shadow-[0_1px_0_rgba(0,0,0,0.55)]">
           {product.name}
         </div>
         <div className="text-[11px] text-[#A0A6B5] mb-3 line-clamp-1">{product.short}</div>

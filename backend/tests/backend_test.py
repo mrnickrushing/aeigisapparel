@@ -4,6 +4,7 @@ Covers: products (core/legacy), campaigns, legacy redeem/request, contact,
 newsletter, manual order, Stripe checkout session, award-only enforcement.
 """
 import os
+import uuid
 import pytest
 import requests
 
@@ -156,9 +157,20 @@ def test_contact_submission(session):
 
 
 def test_newsletter_subscribe(session):
-    r = session.post(f"{API}/newsletter", json={"email": "TEST_aegis@example.com"})
+    unique = f"TEST_aegis_{uuid.uuid4().hex[:8]}@example.com"
+    r = session.post(f"{API}/newsletter", json={"email": f"  {unique.upper()}  "})
     assert r.status_code == 200
-    assert r.json().get("ok") is True
+    data = r.json()
+    assert data.get("ok") is True
+    assert data.get("email") == unique.lower()
+    assert data.get("status") in {"confirmed", "pending"}
+
+    r2 = session.post(f"{API}/newsletter", json={"email": unique.lower()})
+    assert r2.status_code == 200
+    data2 = r2.json()
+    assert data2.get("ok") is True
+    assert data2.get("email") == unique.lower()
+    assert data2.get("status") == data.get("status")
 
 
 # ----- Checkout: manual order for CORE product -----

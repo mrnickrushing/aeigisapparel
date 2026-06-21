@@ -103,8 +103,8 @@ export default function Footer() {
     if (!email) return;
     setLoading(true);
     try {
-      await subscribeNewsletter(email);
-      toast.success("Locked in. Welcome to the Order.");
+      const data = await subscribeNewsletter(email);
+      toast.success(data?.message || "Locked in. Welcome to the Order.");
       setEmail("");
     } catch {
       toast.error("Could not subscribe. Try again.");
@@ -198,7 +198,7 @@ export default function Footer() {
                 { Icon: Instagram, label: "Instagram", href: "#" },
                 { Icon: Facebook, label: "Facebook", href: "#" },
                 { Icon: Youtube, label: "YouTube", href: "#" },
-                { Icon: Mail, label: "Email", href: "mailto:support@rushingtechnologies.com" },
+                { Icon: Mail, label: "Email", href: "mailto:info@strengthinorder.com" },
               ].map(({ Icon, label, href }) => (
                 <a
                   key={label}
