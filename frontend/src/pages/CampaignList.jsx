@@ -17,7 +17,7 @@ export default function CampaignList() {
     <div className="bg-[#06080C] text-white min-h-screen">
       <section className="border-b border-[#1F2330] relative overflow-hidden">
         <div className="absolute inset-0 warning-stripes opacity-20" />
-        <div className="relative max-w-7xl mx-auto px-5 md:px-10 py-16">
+        <div className="relative px-5 md:px-12 py-16">
           <div className="label mb-2 text-[#D4AF37]">/ Mission Files</div>
           <h1
             data-testid="campaigns-heading"
@@ -33,7 +33,7 @@ export default function CampaignList() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-12">
+      <section className="px-5 md:px-12 py-12">
         {error ? (
           <div className="border border-dashed border-[#1F2330] p-12 text-center text-[#A0A6B5]">
             {error}

@@ -43,7 +43,7 @@ export default function CampaignDetail() {
 
   return (
     <div className="bg-[#06080C] text-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-5 md:px-10 py-6">
+      <div className="px-5 md:px-12 py-6">
         <Link
           to="/campaigns"
           className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.3em] text-[#A0A6B5] hover:text-white"
@@ -60,7 +60,7 @@ export default function CampaignDetail() {
         />
         <div className="absolute inset-0 warning-stripes opacity-15" />
 
-        <div className="relative max-w-7xl mx-auto px-5 md:px-10 py-12 grid md:grid-cols-[1fr_auto] gap-10 items-center">
+        <div className="relative px-5 md:px-12 py-12 grid md:grid-cols-[1fr_auto] gap-10 items-center">
           <div>
             <div className="font-mono text-xs uppercase tracking-[0.3em] text-[#A0A6B5] mb-2">
               MISSION FILE // {c.code}

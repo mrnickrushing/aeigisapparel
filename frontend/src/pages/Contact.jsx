@@ -33,7 +33,7 @@ export default function Contact() {
     <div className="bg-[#06080C] text-white min-h-screen">
       <section className="border-b border-[#1F2330] relative overflow-hidden">
         <div className="absolute inset-0 warning-stripes opacity-15" />
-        <div className="relative max-w-7xl mx-auto px-5 md:px-10 py-16">
+        <div className="relative px-5 md:px-12 py-16">
           <div className="label mb-2">/ Establish Comms</div>
           <h1
             data-testid="contact-heading"

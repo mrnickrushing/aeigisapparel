@@ -31,18 +31,18 @@ export default function Header() {
         data-testid="site-header"
         className="sticky top-0 z-40 w-full bg-[#06080C]/90 backdrop-blur-xl border-b border-[#1F2330]"
       >
-        <div className="max-w-7xl mx-auto px-5 md:px-10 h-[68px] flex items-center justify-between">
+        <div className="px-5 md:px-12 h-[68px] flex items-center justify-between">
           <Link
             data-testid="logo-home-link"
             to="/home"
             className="flex items-center gap-3 group"
           >
-            <Logo className="w-8 h-8" />
+            <Logo className="w-11 h-11" />
             <div className="leading-none">
-              <div className="font-display text-xl tracking-[0.15em] etched-steel">
+              <div className="font-display text-2xl tracking-[0.15em] etched-steel">
                 AEGIS
               </div>
-              <div className="text-[9px] font-mono uppercase tracking-[0.3em] text-[#6E7585] mt-0.5">
+              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-[#6E7585] mt-0.5">
                 Strength in Order
               </div>
             </div>

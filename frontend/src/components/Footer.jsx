@@ -72,7 +72,7 @@ export function Pillars() {
       data-testid="pillars-section"
       className="border-y border-[#1F2330] bg-gradient-to-b from-[#06080C] to-[#0A0D14]"
     >
-      <div className="max-w-7xl mx-auto px-5 md:px-10 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-[#1F2330]">
+      <div className="px-5 md:px-12 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-[#1F2330]">
         {PILLARS.map((p) => (
           <div
             key={p.title}
@@ -118,7 +118,7 @@ export default function Footer() {
       className="relative bg-[#06080C] border-t border-[#1F2330] mt-0"
     >
       <Pillars />
-      <div className="max-w-7xl mx-auto px-5 md:px-10 pt-16 pb-8">
+      <div className="px-5 md:px-12 pt-16 pb-8">
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-4">
             <Link to="/home" className="flex items-center gap-3 mb-4">

@@ -83,7 +83,7 @@ export default function ProductDetail() {
 
   return (
     <div className="bg-[#06080C] text-white">
-      <div className="max-w-7xl mx-auto px-5 md:px-10 py-6">
+      <div className="px-5 md:px-12 py-6">
         <Link
           to={product.division === "legacy" ? "/legacy" : "/core"}
           className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.3em] text-[#A0A6B5] hover:text-white"
@@ -92,7 +92,7 @@ export default function ProductDetail() {
         </Link>
       </div>
 
-      <div className="max-w-7xl mx-auto px-5 md:px-10 pb-20">
+      <div className="px-5 md:px-12 pb-20">
         <div className="grid md:grid-cols-2 gap-10">
           {/* Image */}
           <div>

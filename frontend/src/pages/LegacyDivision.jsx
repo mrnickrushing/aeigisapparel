@@ -65,7 +65,7 @@ export default function LegacyDivision() {
       {/* HERO */}
       <section className="relative border-b border-[#1F2330] overflow-hidden dusky-sky dusky-clouds">
         <div className="absolute inset-0 warning-stripes opacity-15" />
-        <div className="relative max-w-7xl mx-auto px-5 md:px-10 pt-16 pb-12 grid md:grid-cols-[auto_1fr] gap-10 items-center">
+        <div className="relative px-5 md:px-12 pt-16 pb-12 grid md:grid-cols-[auto_1fr] gap-10 items-center">
           <img
             src="/aegis/legacy-badge.jpg"
             alt="AEGIS Legacy badge"
@@ -96,7 +96,7 @@ export default function LegacyDivision() {
 
       {/* REDEEM BAR */}
       <section className="border-b border-[#1F2330] bg-[#0A0D14]">
-        <div className="max-w-7xl mx-auto px-5 md:px-10 py-8 grid lg:grid-cols-2 gap-6 items-center">
+        <div className="px-5 md:px-12 py-8 grid lg:grid-cols-2 gap-6 items-center">
           <div>
             <div className="label mb-2 text-[#D4AF37]">/ Authentication</div>
             <h2 className="font-display text-xl md:text-2xl uppercase tracking-[0.1em]">
@@ -137,7 +137,7 @@ export default function LegacyDivision() {
       </section>
 
       {/* MANIFEST */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-12">
+      <section className="px-5 md:px-12 py-12">
         <div className="flex items-end justify-between mb-8">
           <div>
             <div className="label mb-2 text-[#D4AF37]">/ Legacy Manifest</div>

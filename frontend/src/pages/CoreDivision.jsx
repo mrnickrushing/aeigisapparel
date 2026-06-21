@@ -41,7 +41,7 @@ export default function CoreDivision() {
           />
           <div className="absolute inset-0 brushed opacity-40" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-5 md:px-10 pt-16 pb-12 grid md:grid-cols-[1fr_auto] gap-10 items-center">
+        <div className="relative px-5 md:px-12 pt-16 pb-12 grid md:grid-cols-[1fr_auto] gap-10 items-center">
           <div>
             <div className="label mb-2 text-[#6B9DD3]">/ Division 01</div>
             <h1
@@ -68,7 +68,7 @@ export default function CoreDivision() {
 
         {/* Value bar */}
         <div className="border-t border-[#1F2330] bg-[#0A0D14]">
-          <div className="max-w-7xl mx-auto px-5 md:px-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-[#1F2330]">
+          <div className="px-5 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-px bg-[#1F2330]">
             {VALUES.map(({ i: Icon, label }) => (
               <div
                 key={label}
@@ -83,7 +83,7 @@ export default function CoreDivision() {
       </section>
 
       {/* CATALOG */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-12">
+      <section className="px-5 md:px-12 py-12">
         <div className="flex flex-wrap items-center gap-2 mb-8">
           {cats.map((c) => (
             <button
@@ -123,7 +123,7 @@ export default function CoreDivision() {
 
       {/* DETAIL STRIP */}
       <section className="border-t border-[#1F2330] bg-[#0A0D14]">
-        <div className="max-w-7xl mx-auto px-5 md:px-10 py-16 grid md:grid-cols-2 gap-10 items-center">
+        <div className="px-5 md:px-12 py-16 grid md:grid-cols-2 gap-10 items-center">
           <img
             src="/aegis/tactical-white-tee.jpg"
             alt="AEGIS Tactical White"

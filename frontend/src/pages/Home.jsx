@@ -34,7 +34,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#06080C] via-transparent to-[#06080C]/50" />
         <div className="absolute inset-0 scanlines pointer-events-none" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-5 md:px-10 pt-24 md:pt-32 pb-20">
+        <div className="relative z-10 px-5 md:px-12 pt-24 md:pt-32 pb-20">
           <div
             data-testid="hero-eyebrow"
             className="inline-flex items-center gap-2 border border-[#D4AF37]/40 bg-[#D4AF37]/5 px-3 py-1.5 mb-6"
@@ -135,7 +135,7 @@ export default function Home() {
       </section>
 
       {/* ============ DIVISIONS ============ */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-20 md:py-28">
+      <section className="px-5 md:px-12 py-20 md:py-28">
         <div className="text-center mb-12">
           <div className="label mb-3">/ 02 — Choose Your Path</div>
           <h2 className="font-display text-4xl sm:text-6xl uppercase tracking-[0.05em] etched-steel">
@@ -227,7 +227,7 @@ export default function Home() {
       {/* ============ CAMPAIGN MODE ============ */}
       <section className="border-y border-[#1F2330] bg-gradient-to-b from-[#06080C] to-[#0A0D14] relative overflow-hidden">
         <div className="absolute inset-0 warning-stripes opacity-20" />
-        <div className="relative max-w-7xl mx-auto px-5 md:px-10 py-20">
+        <div className="relative px-5 md:px-12 py-20">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
             <div>
               <div className="label mb-3">/ 03 — Mission Files</div>
@@ -263,7 +263,7 @@ export default function Home() {
       </section>
 
       {/* ============ MISSION STATEMENT ============ */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-24">
+      <section className="px-5 md:px-12 py-24">
         <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           <div>
             <div className="label mb-3">/ 04 — The Order</div>
