@@ -46,7 +46,7 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-4 mb-4">
-            <Logo className="w-14 h-14" />
+            <Logo className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 shrink-0" />
             <h1
               data-testid="hero-headline"
               className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-[160px] uppercase leading-[0.85] tracking-[0.1em] etched"
