@@ -1,0 +1,42 @@
+name: Sentry Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      SENTRY_URL: https://sentry.io/
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_RELEASE: aegis-apparel@main
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Build frontend
+        working-directory: frontend
+        run: yarn build
+
+      - name: Create and finalize Sentry release
+        working-directory: frontend
+        run: |
+          npx -y @sentry/cli@2.63.0 releases new "$SENTRY_RELEASE"
+          npx -y @sentry/cli@2.63.0 releases set-commits "$SENTRY_RELEASE" --auto
+          npx -y @sentry/cli@2.63.0 releases files "$SENTRY_RELEASE" upload-sourcemaps build/static/js build/static/css --rewrite --url-prefix "~/static"
+          npx -y @sentry/cli@2.63.0 releases finalize "$SENTRY_RELEASE"
