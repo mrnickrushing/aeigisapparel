@@ -1,0 +1,40 @@
+name: Railway Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: railway-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate Railway secrets
+        run: |
+          test -n "$RAILWAY_TOKEN" || (echo "Missing RAILWAY_TOKEN" && exit 1)
+          test -n "$RAILWAY_PROJECT_ID" || (echo "Missing RAILWAY_PROJECT_ID" && exit 1)
+          test -n "$RAILWAY_SERVICE_ID" || (echo "Missing RAILWAY_SERVICE_ID" && exit 1)
+
+      - name: Deploy to Railway
+        run: >
+          npx -y @railway/cli@latest up --ci
+          --project "$RAILWAY_PROJECT_ID"
+          --service "$RAILWAY_SERVICE_ID"
+          --environment production
