@@ -31,31 +31,31 @@ export default function Header() {
         data-testid="site-header"
         className="sticky top-0 z-40 w-full bg-[#06080C]/90 backdrop-blur-xl border-b border-[#1F2330]"
       >
-        <div className="px-5 md:px-12 h-[68px] flex items-center justify-between">
+        <div className="px-5 md:px-12 h-[92px] flex items-center justify-between">
           <Link
             data-testid="logo-home-link"
             to="/home"
-            className="flex items-center gap-3 group"
+            className="flex items-center gap-4 group"
           >
-            <Logo className="w-11 h-11" />
+            <Logo className="w-16 h-16" />
             <div className="leading-none">
-              <div className="font-display text-2xl tracking-[0.15em] etched-steel">
+              <div className="font-display text-4xl tracking-[0.15em] etched-steel">
                 AEGIS
               </div>
-              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-[#6E7585] mt-0.5">
+              <div className="text-xs font-mono uppercase tracking-[0.3em] text-[#6E7585] mt-1">
                 Strength in Order
               </div>
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-10">
             {navLinks.map((l) => (
               <NavLink
                 key={l.label}
                 data-testid={`nav-link-${l.label.toLowerCase()}`}
                 to={l.to}
                 className={({ isActive }) =>
-                  `text-[11px] font-mono uppercase tracking-[0.3em] transition-colors ${
+                  `text-sm font-mono uppercase tracking-[0.3em] transition-colors ${
                     isActive ? "text-[#D4AF37]" : "text-[#A0A6B5] hover:text-white"
                   }`
                 }
@@ -68,11 +68,11 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <button
               data-testid="profile-btn"
-              className="hidden md:flex w-10 h-10 border border-[#1F2330] hover:border-[#D4AF37] items-center justify-center transition-colors"
+              className="hidden md:flex w-12 h-12 border border-[#1F2330] hover:border-[#D4AF37] items-center justify-center transition-colors"
               aria-label="Profile"
               onClick={() => navigate("/legacy")}
             >
-              <User className="w-4 h-4 text-[#A0A6B5]" />
+              <User className="w-5 h-5 text-[#A0A6B5]" />
             </button>
             <button
               data-testid="mobile-menu-toggle"
