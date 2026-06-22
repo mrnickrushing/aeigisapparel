@@ -220,8 +220,17 @@ export default function Footer() {
           <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#6E7585]">
             Built on Discipline · United as One · Earned. Never Issued.
           </div>
-          <div className="text-[10px] text-[#6E7585] font-mono tracking-wider">
-            © {new Date().getFullYear()} AEGIS APPAREL · All rights reserved
+          <div className="flex items-center gap-4">
+            <Link
+              to="/admin"
+              data-testid="admin-link"
+              className="text-[10px] text-[#6E7585] hover:text-[#D4AF37] font-mono uppercase tracking-[0.2em] transition-colors"
+            >
+              Admin
+            </Link>
+            <div className="text-[10px] text-[#6E7585] font-mono tracking-wider">
+              © {new Date().getFullYear()} AEGIS APPAREL · All rights reserved
+            </div>
           </div>
         </div>
       </div>
