@@ -32,3 +32,13 @@ export const sendNewsletterBlast = async (subject, body) => {
   );
   return data;
 };
+
+export const deleteSubscriber = async (id) => {
+  const { data } = await api.delete(`/admin/newsletter/${id}`, { headers: authHeaders() });
+  return data;
+};
+
+export const deleteContactMessage = async (id) => {
+  const { data } = await api.delete(`/admin/contacts/${id}`, { headers: authHeaders() });
+  return data;
+};

@@ -942,6 +942,22 @@ async def admin_list_contacts():
     return {"total": len(docs), "messages": docs}
 
 
+@api_router.delete("/admin/newsletter/{subscriber_id}", dependencies=[Depends(require_admin)])
+async def admin_delete_subscriber(subscriber_id: str):
+    result = await db.newsletter.delete_one({"id": subscriber_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Subscriber not found")
+    return {"ok": True}
+
+
+@api_router.delete("/admin/contacts/{message_id}", dependencies=[Depends(require_admin)])
+async def admin_delete_contact(message_id: str):
+    result = await db.contact_messages.delete_one({"id": message_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Message not found")
+    return {"ok": True}
+
+
 def _build_newsletter_html(subject: str, body: str, email: str) -> str:
     unsub_url = f"{PUBLIC_SITE_URL}/api/newsletter/unsubscribe?email={email}&sig={_unsubscribe_signature(email)}"
     return f"""

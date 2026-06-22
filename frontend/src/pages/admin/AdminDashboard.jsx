@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Mail, Send, Users, MessageSquare } from "lucide-react";
+import { LogOut, Mail, Send, Trash2, Users, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import Logo from "../../components/Logo";
 import AdminShell from "./AdminShell";
 import {
   clearAdminToken,
+  deleteContactMessage,
+  deleteSubscriber,
   fetchContactMessages,
   fetchSubscribers,
   getAdminToken,
@@ -115,6 +117,28 @@ export default function AdminDashboard() {
     setSending(false);
   };
 
+  const removeSubscriber = async (s) => {
+    if (!window.confirm(`Remove ${s.email} from the newsletter roster?`)) return;
+    try {
+      await deleteSubscriber(s.id);
+      setSubscribers((prev) => prev.filter((sub) => sub.id !== s.id));
+      toast.success("Subscriber removed.");
+    } catch (err) {
+      if (!handleAuthError(err)) toast.error("Could not remove subscriber.");
+    }
+  };
+
+  const removeMessage = async (m) => {
+    if (!window.confirm(`Delete the message from ${m.full_name}?`)) return;
+    try {
+      await deleteContactMessage(m.id);
+      setMessages((prev) => prev.filter((msg) => msg.id !== m.id));
+      toast.success("Message deleted.");
+    } catch (err) {
+      if (!handleAuthError(err)) toast.error("Could not delete message.");
+    }
+  };
+
   return (
     <AdminShell>
       <div data-testid="admin-dashboard-page">
@@ -182,6 +206,7 @@ export default function AdminDashboard() {
                           <th className="px-6 py-3 font-normal">Email</th>
                           <th className="px-6 py-3 font-normal">Status</th>
                           <th className="px-6 py-3 font-normal">Signed Up</th>
+                          <th className="px-6 py-3 font-normal" />
                         </tr>
                       </thead>
                       <tbody>
@@ -211,6 +236,16 @@ export default function AdminDashboard() {
                               </td>
                               <td className="px-6 py-3 text-[#A0A6B5] font-mono text-xs">
                                 {new Date(s.created_at).toLocaleString()}
+                              </td>
+                              <td className="px-6 py-3 text-right">
+                                <button
+                                  data-testid={`admin-delete-subscriber-${s.id}`}
+                                  onClick={() => removeSubscriber(s)}
+                                  aria-label={`Remove ${s.email}`}
+                                  className="text-[#6E7585] hover:text-[#C0392B] transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
                               </td>
                             </tr>
                           );
@@ -295,8 +330,18 @@ export default function AdminDashboard() {
                       <div key={m.id} className="px-6 py-4">
                         <div className="flex justify-between items-baseline gap-3 mb-1">
                           <div className="text-white text-sm font-medium">{m.full_name}</div>
-                          <div className="text-[#6E7585] font-mono text-[10px]">
-                            {new Date(m.created_at).toLocaleString()}
+                          <div className="flex items-center gap-3">
+                            <div className="text-[#6E7585] font-mono text-[10px]">
+                              {new Date(m.created_at).toLocaleString()}
+                            </div>
+                            <button
+                              data-testid={`admin-delete-message-${m.id}`}
+                              onClick={() => removeMessage(m)}
+                              aria-label={`Delete message from ${m.full_name}`}
+                              className="text-[#6E7585] hover:text-[#C0392B] transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </div>
                         <div className="text-[#A0A6B5] text-xs mb-2">
