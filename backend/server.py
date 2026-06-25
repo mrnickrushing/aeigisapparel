@@ -75,7 +75,9 @@ db = client[os.environ["DB_NAME"]]
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 ADMIN_JWT_SECRET = (
     os.environ.get("ADMIN_JWT_SECRET")
-    or hashlib.sha256(f"aegis-admin::{ADMIN_PASSWORD}".encode()).hexdigest()
+    or hashlib.pbkdf2_hmac(
+        "sha256", ADMIN_PASSWORD.encode(), b"aegis-admin-jwt-secret", 200_000
+    ).hex()
 )
 ADMIN_TOKEN_TTL_SECONDS = 12 * 60 * 60
 PUBLIC_SITE_URL = os.environ.get("PUBLIC_SITE_URL", "https://strengthinorder.com")
