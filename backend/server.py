@@ -1244,16 +1244,14 @@ if FRONTEND_BUILD_DIR.is_dir():
 
     @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     async def serve_frontend(full_path: str):
-        # full_path is attacker-controlled; resolve it and verify it's still
-        # inside FRONTEND_BUILD_DIR before serving, otherwise "../../etc/passwd"
-        # style requests can read arbitrary files off the host.
-        candidate = (FRONTEND_BUILD_DIR / full_path).resolve()
-        if (
-            full_path
-            and candidate.is_relative_to(FRONTEND_BUILD_DIR)
-            and candidate.is_file()
-        ):
-            return FileResponse(candidate)
+        # full_path is attacker-controlled. Reject ".." segments outright
+        # (e.g. "../../etc/passwd") before touching the filesystem, then
+        # double-check the resolved path is still inside FRONTEND_BUILD_DIR
+        # in case of symlink tricks.
+        if full_path and ".." not in full_path.split("/"):
+            candidate = (FRONTEND_BUILD_DIR / full_path).resolve()
+            if candidate.is_relative_to(FRONTEND_BUILD_DIR) and candidate.is_file():
+                return FileResponse(candidate)
         return FileResponse(FRONTEND_BUILD_DIR / "index.html")
 
 
