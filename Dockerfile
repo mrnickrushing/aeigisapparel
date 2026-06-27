@@ -7,7 +7,7 @@ ENV REACT_APP_BACKEND_URL=""
 ENV CI=false
 RUN yarn build
 
-FROM python:3.11-slim
+FROM python:3.14-slim
 WORKDIR /app
 COPY backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
