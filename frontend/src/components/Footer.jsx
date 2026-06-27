@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Instagram, Mail, Facebook, Youtube, Send } from "lucide-react";
+import { Camera, Mail, Facebook, Youtube, Send } from "lucide-react";
 import { toast } from "sonner";
 import { subscribeNewsletter } from "../lib/api";
 import Logo from "./Logo";
@@ -195,7 +195,7 @@ export default function Footer() {
             <div className="label mt-6 mb-3 text-[#D4AF37]">Connect</div>
             <div className="flex gap-3">
               {[
-                { Icon: Instagram, label: "Instagram", href: "#" },
+                { Icon: Camera, label: "Instagram", href: "#" },
                 { Icon: Facebook, label: "Facebook", href: "#" },
                 { Icon: Youtube, label: "YouTube", href: "#" },
                 { Icon: Mail, label: "Email", href: "mailto:info@strengthinorder.com" },
