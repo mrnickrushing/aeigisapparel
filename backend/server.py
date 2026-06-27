@@ -553,7 +553,7 @@ async def seed_data():
 
 
 # ---------- ROUTES ----------
-@api_router.get("/")
+@api_router.api_route("/", methods=["GET", "HEAD"])
 async def root():
     return {"message": "AEGIS — Strength in Order", "status": "operational"}
 
@@ -1228,7 +1228,7 @@ FRONTEND_BUILD_DIR = ROOT_DIR / "build"
 if FRONTEND_BUILD_DIR.is_dir():
     from fastapi.responses import FileResponse
 
-    @app.get("/{full_path:path}")
+    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     async def serve_frontend(full_path: str):
         candidate = FRONTEND_BUILD_DIR / full_path
         if full_path and candidate.is_file():
