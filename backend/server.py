@@ -1240,19 +1240,24 @@ app.add_middleware(SecurityHeadersMiddleware)
 # can run as a single deployed service.
 FRONTEND_BUILD_DIR = (ROOT_DIR / "build").resolve()
 if FRONTEND_BUILD_DIR.is_dir():
-    from fastapi.responses import FileResponse
+    from starlette.exceptions import HTTPException as StarletteHTTPException
 
-    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
-    async def serve_frontend(full_path: str):
-        # full_path is attacker-controlled. Reject ".." segments outright
-        # (e.g. "../../etc/passwd") before touching the filesystem, then
-        # double-check the resolved path is still inside FRONTEND_BUILD_DIR
-        # in case of symlink tricks.
-        if full_path and ".." not in full_path.split("/"):
-            candidate = (FRONTEND_BUILD_DIR / full_path).resolve()
-            if candidate.is_relative_to(FRONTEND_BUILD_DIR) and candidate.is_file():
-                return FileResponse(candidate)
-        return FileResponse(FRONTEND_BUILD_DIR / "index.html")
+    class _SPAStaticFiles(StaticFiles):
+        # Falls back to index.html for client-side routes; path containment
+        # against "../" traversal is handled by StaticFiles.lookup_path itself.
+        async def get_response(self, path, scope):
+            try:
+                return await super().get_response(path, scope)
+            except StarletteHTTPException as exc:
+                if exc.status_code == 404:
+                    return await super().get_response("index.html", scope)
+                raise
+
+    app.mount(
+        "/",
+        _SPAStaticFiles(directory=str(FRONTEND_BUILD_DIR), html=True),
+        name="frontend",
+    )
 
 
 logging.basicConfig(
