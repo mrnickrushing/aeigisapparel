@@ -1,6 +1,6 @@
 FROM node:26-alpine AS frontend-build
 WORKDIR /app/frontend
-RUN corepack enable
+RUN npm install -g yarn
 COPY frontend/package.json frontend/yarn.lock ./
 RUN yarn install --frozen-lockfile
 COPY frontend/ ./
