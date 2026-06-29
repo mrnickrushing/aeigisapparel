@@ -26,3 +26,4 @@ python-multipart>=0.0.32
 jq>=1.6.0
 typer>=0.26.8
 sentry-sdk>=2.63.0
+httpx2>=2.5.0

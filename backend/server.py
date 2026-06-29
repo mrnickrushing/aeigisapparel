@@ -141,10 +141,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             response.headers[header] = value
         return response
 
-
-# Swagger/ReDoc/OpenAPI schema are disabled by default since they expose
-# the full endpoint/parameter map to anyone; set ENABLE_API_DOCS=true locally
-# to turn them back on for development.
 app = FastAPI(
     title="AEGIS API — Strength in Order",
     docs_url="/docs" if ENABLE_API_DOCS else None,
@@ -1239,6 +1235,17 @@ app.add_middleware(SecurityHeadersMiddleware)
 # Serves the built React app (see Dockerfile) so the API and frontend
 # can run as a single deployed service.
 FRONTEND_BUILD_DIR = (ROOT_DIR / "build").resolve()
+
+
+def resolve_frontend_path(full_path: str) -> Path | None:
+    candidate = (FRONTEND_BUILD_DIR / full_path).resolve()
+    try:
+        candidate.relative_to(FRONTEND_BUILD_DIR)
+    except ValueError:
+        return None
+    return candidate if candidate.is_file() else None
+
+
 if FRONTEND_BUILD_DIR.is_dir():
     from starlette.exceptions import HTTPException as StarletteHTTPException
 
